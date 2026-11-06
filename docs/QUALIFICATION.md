@@ -9,6 +9,7 @@ Linux: **NOT VERIFIED**. No full Quick film or Film-mode run.
 | Vendor verification | PASS, 168 exact Git-blob files | Pinned commit 67f9807112b97ae253d4a5f0eccaccc46c3b2633 |
 | Drift tests | PASS | Same-size edit, deletion, unexpected file, changed manifest/pin, unsafe path |
 | Doctor | PASS | Existing prerequisites and writable workspace; not render proof |
+| Standalone export/relocation | PASS | Package path with spaces, cwd outside package, explicit external workspace; no research dependency |
 | Adapter regressions | PASS, 15 tests | Non-rendering stdlib tests, including relocation, missing tools, literal argv/cwd/exit propagation |
 | Bundled Skill Creator validation | PASS | Skill frontmatter/naming; separate from native discovery |
 | Native skill discovery | PASS | Real Codex app-server skills/list, scope=repo, enabled=true |

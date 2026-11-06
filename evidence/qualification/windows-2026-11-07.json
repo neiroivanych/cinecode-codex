@@ -55,7 +55,20 @@
     },
     "frame_visual_review": "frame12: expected yellow square on blue field",
     "full_decode": "PASS",
-    "motion_hook": "PASS"
+    "motion_hook": "PASS",
+    "standalone_relocation": {
+      "status": "PASS",
+      "standalone_export": true,
+      "relocated_path_with_spaces": true,
+      "cwd_outside_package": true,
+      "external_workspace": true,
+      "nested_git": false,
+      "remote_created": false,
+      "checks": {
+        "verify": "PASS",
+        "doctor": "PASS"
+      }
+    }
   },
   "output": {
     "width": 160,
