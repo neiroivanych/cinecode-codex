@@ -1,0 +1,10 @@
+{
+  "schema_version": 1,
+  "name": "cinecode-codex",
+  "version_file": "VERSION",
+  "upstream_lock": "upstream.lock.json",
+  "skill": ".agents/skills/cinecode/SKILL.md",
+  "entrypoint": "scripts/cc.py",
+  "default_workspace": "workspace",
+  "license": "MIT"
+}

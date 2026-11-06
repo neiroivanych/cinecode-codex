@@ -1,0 +1,103 @@
+{
+  "schema_version": 1,
+  "adapter_version": "0.1.0-alpha",
+  "date": "2026-11-07",
+  "timezone": "Asia/Bangkok",
+  "experimental": true,
+  "environment": {
+    "os": "Windows",
+    "build": "10.0.26200",
+    "python": "3.14.3",
+    "node": "v26.4.0",
+    "ffmpeg": "ffmpeg version 8.1.2-full_build-www.gyan.dev",
+    "ffprobe": "ffprobe version 8.1.2-full_build-www.gyan.dev",
+    "chrome": "156.0.8078.80",
+    "codex": "codex-cli 0.160.1"
+  },
+  "execution_mode": "approved host execution; no Chrome --no-sandbox flag",
+  "upstream": {
+    "repository": "https://github.com/sarpstar/cinecode",
+    "commit": "67f9807112b97ae253d4a5f0eccaccc46c3b2633",
+    "commit_date": "2026-11-03T18:21:16+03:00",
+    "verified_files": 168,
+    "exact_git_blob_comparison": "PASS",
+    "manifest_verification": "PASS"
+  },
+  "tests": {
+    "adapter_unit_tests": {
+      "status": "PASS",
+      "count": 15
+    },
+    "skill_creator_validation": "PASS",
+    "doctor": "PASS",
+    "native_discovery": {
+      "status": "PASS",
+      "method": "skills/list",
+      "scope": "repo",
+      "enabled": true,
+      "skill_path": ".agents/skills/cinecode/SKILL.md"
+    },
+    "explicit_invocation": {
+      "status": "PASS",
+      "ephemeral": true,
+      "tool_items": 0,
+      "marker": "CINECODE_CODEX_SKILL_LOADED",
+      "protection": "REDUCED_NO_HOOKS"
+    },
+    "frame_repeat": "IDENTICAL",
+    "first_capture": {
+      "rendered": 3,
+      "skipped": 0
+    },
+    "resume_capture": {
+      "rendered": 0,
+      "skipped": 3
+    },
+    "frame_visual_review": "frame12: expected yellow square on blue field",
+    "full_decode": "PASS",
+    "motion_hook": "PASS"
+  },
+  "output": {
+    "width": 160,
+    "height": 90,
+    "frames": "48",
+    "fps": "24/1",
+    "duration_seconds": "2.000000",
+    "video_codec": "h264",
+    "pixel_format": "yuv420p",
+    "color_space": "bt709",
+    "color_range": "tv",
+    "audio_codec": "aac",
+    "audio_sample_rate": "48000",
+    "audio_channels": 1,
+    "audio_start": "0.000000",
+    "audio_declared_duration": "2.000000",
+    "sha256": "2b88feed6323f9311d5bb7d2063f32152930132d6ba2245c368120d41b1419c5",
+    "frame_hashes": {
+      "000000.png": "6cbaf53df5c3b5d43956d50c0e3696079d1f0abb86ee63fa69370203f0045ef3",
+      "000012.png": "787fbb61c61a4e577cf19f403164e77b9b203f6d6928a149759e322242fd4eab",
+      "000024.png": "a747392662bfba357cf1e4a8868ca4e3c600d802a35b29eb652ee47495dbbce8"
+    }
+  },
+  "preservation": {
+    "cc01_evidence_files_unchanged": 341,
+    "upstream_files_unmodified": true
+  },
+  "not_run": [
+    "Desktop UI picker/playback",
+    "full Quick film",
+    "Film mode",
+    "macOS",
+    "Linux",
+    "external media/models/TTS",
+    "hooks bridge",
+    "NI integration",
+    "GitHub publication"
+  ],
+  "limits": [
+    "A single-host frame repeat is not cross-device pixel parity.",
+    "Declared AAC presentation is not general decoder-domain conformance.",
+    "No-hook workflow discipline is reduced protection, not a security sandbox.",
+    "Full Quick readiness remains an experiment with its own owner scope."
+  ]
+}
