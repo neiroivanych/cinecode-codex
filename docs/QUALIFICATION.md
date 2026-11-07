@@ -1,8 +1,10 @@
 # Qualification — 0.1.0-alpha
 
+## Historical local Windows qualification
+
 **Experimental. Windows native-skill + tiny synthetic smoke PASS.**
 Date: 2026-11-07, Asia/Bangkok. macOS: **NOT VERIFIED**.
-Linux: **NOT VERIFIED**. No full Quick film or Film-mode run.
+Linux: **NOT VERIFIED**. That historical smoke did not run a full Quick film or Film mode.
 
 | Check | Actual result | Scope |
 |---|---|---|
@@ -34,6 +36,30 @@ that failure is fixed. One sandbox Git status attempt reported "must be run in
 a work tree"; authorized host checks confirmed a normal non-bare repository.
 Its root cause was not established. No browser --no-sandbox, global graphics changes or dependency installs
 were used.
+
+## Hosted Windows and macOS qualification
+
+The workflow targets GitHub-hosted Windows Server 2025 x64 (`windows-2025`)
+and macOS 15 arm64 (`macos-15`). Runner image versions and exact runtimes
+come from each run. Hosted results are pending until the jobs execute.
+
+The job sets up Python 3.12 and Node 22, provisions FFmpeg only in the disposable
+runner when missing, and uses the image's browser. It checks the tracked Git
+export from a path with spaces, an unrelated cwd and a separate writable
+workspace. Link tests use Windows junctions or real directory symlinks on
+macOS. The no-media initialization checks the real copied brief helper.
+
+The CI synthetic route reuses the local Canvas/tone fixture without a model
+turn. The separate WebGL diagnostic is outside the CI Canvas scope. The opt-in local smoke command still requires its discovery/invocation
+receipt. CI separately attempts app-server metadata discovery in a fresh
+credential-free home. A model invocation and Codex Desktop are separate
+checks. The synthetic result does not qualify a full Quick or Film run.
+
+Runner labels and mutable images are documented in
+[GitHub-hosted runners](https://docs.github.com/en/actions/reference/runners/github-hosted-runners)
+and [runner images](https://github.com/actions/runner-images).
+The [Codex app-server protocol](https://learn.chatgpt.com/docs/app-server#api-overview)
+defines the metadata call; hosted discovery is measured independently.
 
 ## Evidence
 

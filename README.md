@@ -21,7 +21,7 @@ configuration is installed.
 This is an experimental workflow adapter, not a standalone video editor or a
 qualified HVPC renderer. See [actual qualification](docs/QUALIFICATION.md) and
 [host differences/reduced protection](docs/HOST_ADAPTATION.md).
-macOS and Linux are **not verified** until tested on those systems.
+Hosted Windows/macOS qualification is tracked separately from Codex Desktop in the qualification report. Linux is **not verified**.
 
 ## Prerequisites
 
@@ -101,4 +101,4 @@ models. Output directories must be new. Logs/media remain ignored.
 
 There is no NI AI Creator Tools integration. A future distributor can package
 the same adapter using [this boundary](docs/NI_INTEGRATION_BOUNDARY.md).
-No GitHub repository has been published by this task.
+The source is available ahead of the first tagged alpha release.

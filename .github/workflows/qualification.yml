@@ -1,0 +1,83 @@
+name: Windows and macOS qualification
+
+on:
+  push:
+    branches: [main]
+  workflow_dispatch:
+
+permissions:
+  contents: read
+
+jobs:
+  qualification:
+    name: Qualification (${{ matrix.os }})
+    runs-on: ${{ matrix.os }}
+    timeout-minutes: 25
+    strategy:
+      fail-fast: false
+      matrix:
+        os: [windows-2025, macos-15]
+    env:
+      PYTHONDONTWRITEBYTECODE: '1'
+      PYTHONUTF8: '1'
+    steps:
+      - uses: actions/checkout@d23441a48e516b6c34aea4fa41551a30e30af803 # v6
+        with:
+          persist-credentials: false
+      - uses: actions/setup-python@ece7cb06caefa5fff74198d8649806c4678c61a1 # v6
+        with:
+          python-version: '3.12'
+      - uses: actions/setup-node@249970729cb0ef3589644e2896645e5dc5ba9c38 # v6
+        with:
+          node-version: '22'
+          package-manager-cache: false
+
+      - name: Provision FFmpeg on Windows
+        if: runner.os == 'Windows'
+        continue-on-error: true
+        shell: pwsh
+        run: |
+          if (!(Get-Command ffmpeg -ErrorAction SilentlyContinue) -or !(Get-Command ffprobe -ErrorAction SilentlyContinue)) {
+            choco install ffmpeg --yes --no-progress
+            if ($LASTEXITCODE -ne 0) { exit $LASTEXITCODE }
+          }
+          ffmpeg -version
+          ffprobe -version
+
+      - name: Provision FFmpeg on macOS
+        if: runner.os == 'macOS'
+        continue-on-error: true
+        shell: bash
+        env:
+          HOMEBREW_NO_AUTO_UPDATE: '1'
+          HOMEBREW_NO_INSTALL_CLEANUP: '1'
+        run: |
+          if ! command -v ffmpeg || ! command -v ffprobe; then
+            brew install ffmpeg
+          fi
+          ffmpeg -version
+          ffprobe -version
+
+      - name: Provision Codex for metadata-only discovery
+        id: codex
+        continue-on-error: true
+        shell: bash
+        run: npm install --prefix "$RUNNER_TEMP/cinecode-codex-cli" --ignore-scripts --no-audit --no-fund @openai/codex@0.160.1
+
+      - name: Qualify the adapter, browser and skill
+        shell: bash
+        env:
+          CI_CODEX_SETUP: ${{ steps.codex.outcome }}
+          CI_RUNNER_LABEL: ${{ matrix.os }}
+        run: |
+          python -B scripts/ci_qualify.py --out "$RUNNER_TEMP/cinecode-qualification" \
+            --codex "$RUNNER_TEMP/cinecode-codex-cli/node_modules/@openai/codex/bin/codex.js"
+
+      - name: Retain qualification evidence
+        if: always()
+        uses: actions/upload-artifact@cf430e030ddbb5b0abf93d22962f4752f3646cd9 # v7
+        with:
+          name: qualification-${{ matrix.os }}
+          path: ${{ runner.temp }}/cinecode-qualification
+          if-no-files-found: warn
+          retention-days: 14

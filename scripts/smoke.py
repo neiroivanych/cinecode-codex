@@ -39,15 +39,17 @@ def main():
     out = Path(a.out).resolve()
     if not out.is_relative_to(cc.ROOT / "evidence/local") or out.exists():
         raise ValueError("output must be a new directory under evidence/local/")
+    return run_smoke(out)
+
+
+def run_smoke(out, workspace=None, *, probe_gpu=True):
+    """Shared offline fixture. CLI callers retain the discovery gate in main()."""
     out.mkdir(parents=True)
     result = {"status": "RUNNING", "started_utc": datetime.now(timezone.utc).isoformat(),
               "upstream_commit": cc.PIN, "scope": "offline synthetic only, 160x90, 24fps, 48 frames",
               "commands": []}
-    env = cc.child_env(cc.workspace_path())
+    env = cc.child_env(cc.workspace_path(workspace))
     browser = cc.browser_path()
-    if not browser:
-        raise ValueError("browser missing")
-    env["CHROME_PATH"] = browser
 
     def run(label, cmd):
         r = subprocess.run([str(x) for x in cmd], cwd=cc.ROOT, env=env, capture_output=True,
@@ -60,13 +62,19 @@ def main():
         return r.stdout
 
     try:
+        if not browser:
+            raise ValueError("browser missing")
+        env["CHROME_PATH"] = browser
         fixture = out / "fixture.html"
         fixture.write_text(HTML, encoding="utf-8")
         capture = cc.ROOT / "cinecode/scripts/capture.mjs"
         base = ["node", capture, "--url", fixture]
-        probe = run("gpu-probe", ["node", capture, "--url", cc.ROOT / "cinecode/starter/index.html",
-                                  "--probe", "--params", "w=64&h=36"])
-        result["gpu_probe"] = probe.strip()
+        if probe_gpu:
+            probe = run("gpu-probe", ["node", capture, "--url", cc.ROOT / "cinecode/starter/index.html",
+                                      "--probe", "--params", "w=64&h=36"])
+            result["gpu_probe"] = probe.strip()
+        else:
+            result["gpu_probe"] = "NOT RUN (Canvas-only CI scope)"
         verify = run("determinism", base + ["--verify"])
         if "IDENTICAL" not in verify:
             raise RuntimeError("determinism did not report IDENTICAL")
@@ -101,7 +109,7 @@ def main():
             raise RuntimeError("audio metadata mismatch")
         if abs(float(meta["format"]["duration"]) - 2) > 1 / 24:
             raise RuntimeError("duration mismatch")
-        run("decode", ["ffmpeg", "-hide_banner", "-nostdin", "-v", "error", "-i", av, "-f", "null", "-"])
+        run("decode", ["ffmpeg", "-hide_banner", "-nostdin", "-v", "error", "-xerror", "-i", av, "-f", "null", "-"])
         env["QC_OUT"] = str(out / "qc")
         run("motion-hook", [sys.executable, "-B", cc.ROOT / "cinecode/scripts/qc.py", "hook", av])
         result.update(status="PASS", video=v, audio=audio, duration=meta["format"]["duration"],
