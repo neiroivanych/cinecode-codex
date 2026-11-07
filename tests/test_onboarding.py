@@ -95,15 +95,15 @@ class Onboarding(unittest.TestCase):
         self.assertEqual(version, "0.1.1-alpha")
         readme = (ROOT / "README.md").read_text(encoding="utf-8")
         onboarding = readme.split("## Open and check", 1)[1].split("\n## ", 1)[0]
-        command_block = onboarding.split("~~~sh\n", 1)[1].split("\n~~~", 1)[0]
-        shell = shlex.shlex(command_block, posix=True, punctuation_chars="&")
-        shell.whitespace_split = True
-        self.assertEqual(list(shell), [
-            "git", "clone", "--branch", f"v{version}", "--single-branch",
-            "https://github.com/neiroivanych/cinecode-codex.git", "&&",
-            "cd", "cinecode-codex", "&&",
-            "python", "-B", "scripts/cc.py", "verify", "&&",
-            "python", "-B", "scripts/cc.py", "doctor",
+        command_block = re.search(r"(?m)^[ \t]*~~~sh[ \t]*\n([\s\S]*?)^[ \t]*~~~[ \t]*$", onboarding)
+        self.assertIsNotNone(command_block)
+        commands = [shlex.split(line, comments=True) for line in command_block[1].splitlines()]
+        self.assertEqual([command for command in commands if command], [
+            ["git", "clone", "--branch", f"v{version}", "--single-branch",
+             "https://github.com/neiroivanych/cinecode-codex.git"],
+            ["cd", "cinecode-codex"],
+            ["python", "-B", "scripts/cc.py", "verify"],
+            ["python", "-B", "scripts/cc.py", "doctor"],
         ])
         self.assertIn("in preparation", readme)
         self.assertIn(f"`v{version}` tag is published", onboarding)

@@ -34,6 +34,7 @@ Both hosted jobs verified credential-free Codex `skills/list` metadata. See the
 
 ## Prerequisites
 
+- Git for cloning the release.
 - Codex with repo-local skills and an existing user sign-in for native testing.
 - Python 3.9+, Node.js 22+, FFmpeg and ffprobe.
 - Chrome, Chromium or Edge for capture. `CHROME_PATH` can select an existing browser executable.
@@ -45,15 +46,16 @@ approval and a reviewed invocation. No API key is required by the adapter.
 
 ## Open and check
 
-Use these commands in Git Bash on Windows or a shell on macOS once the planned
-`v0.1.1-alpha` tag is published. The clone selects that tag before either check.
+Run these commands in order once the planned `v0.1.1-alpha` tag is published.
+The clone selects that tag before either check. Continue only after each
+command succeeds.
 Until then, the published `v0.1.0-alpha` can be selected by substituting its tag.
 Use `python3` in both lines if that is your Python command.
 
 ~~~sh
-git clone --branch v0.1.1-alpha --single-branch https://github.com/neiroivanych/cinecode-codex.git &&
-cd cinecode-codex &&
-python -B scripts/cc.py verify &&
+git clone --branch v0.1.1-alpha --single-branch https://github.com/neiroivanych/cinecode-codex.git
+cd cinecode-codex
+python -B scripts/cc.py verify
 python -B scripts/cc.py doctor
 ~~~
 
