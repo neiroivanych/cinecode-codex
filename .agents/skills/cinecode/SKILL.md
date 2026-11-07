@@ -6,11 +6,11 @@ description: Run CineCode Quick or Film workflows through this repository's inde
 # CineCode for Codex
 
 Resolve REPO from this file: three parents above the skill directory. KIT is
-REPO/cinecode; default projects live in REPO/workspace. Never use the installation
-parent, a research checkout, or a global skill path as the film workspace.
+REPO/cinecode. Use REPO/workspace or an explicitly selected writable workspace
+for film projects.
 
 Read REPO/docs/HOST_ADAPTATION.md, then KIT/SKILL.md. Treat this wrapper and the
-host adaptation as the translation of Claude-specific instructions. Load only
+host adaptation as the translation of upstream host-specific instructions. Load only
 the upstream reference sections needed for the current step.
 
 For compatibility-inspection requests, do only the requested checks, never start
@@ -32,18 +32,17 @@ a film. Native invocation probe marker: CINECODE_CODEX_SKILL_LOADED.
 
 ## Codex host behavior
 
-- No Claude hooks or session APIs are installed. Protection is
+- Upstream lifecycle hooks and session APIs are unavailable here. Protection is
   REDUCED_NO_HOOKS: file discipline and explicit checks, not automatic enforcement.
   Never report a missing guard warning as proof that guard protection exists.
 - Ask with the available Codex question interface, or a clear text question.
   A pending question, a recommendation, a written STATE gate or silence is not
   approval. Show the actual artifact/version before its gate; use the real reply.
 - Present local media using supported Codex previews or absolute Markdown links.
-  There is no SendUserFile or wrap_up contract to emulate. Do not claim audio
-  was heard when only measurements were made.
+  Distinguish listening from audio measurements.
 - Use the host's exec session/status/log facilities. Read actual exits and errors.
-  Do not invent run_in_background, Claude usage numbers, dollar/load budgets or
-  persistent process recovery. Resume from files; never auto-open another chat.
+  Record usage only when measured. Resume from checkpoint files and verify
+  running jobs. Open another chat only at the user's request.
 - Preserve Quick/Film sample-first review, diagnostic-before-rebuild, targeted
   notes, unchanged shots and the user's Keep list. Inspect QC reports and run
   deciding checks: qc.py all exit zero is not an all-checks-PASS verdict.

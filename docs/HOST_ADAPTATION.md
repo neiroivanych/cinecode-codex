@@ -2,8 +2,8 @@
 
 This file translates host-specific instructions in the unmodified upstream.
 Keep CineCode's Quick/Film creative methodology; apply these host mappings when
-an upstream example assumes Claude Code. No Claude Skill tool, SendUserFile,
-wrap_up, ccd session API or lifecycle hook is installed here.
+an upstream example relies on its own host. Codex discovers the repo-local
+skill. Upstream lifecycle hooks and session APIs are unavailable.
 
 ## Local workflow
 
@@ -23,9 +23,11 @@ python -B scripts/cc.py tool example make stills
 ~~~
 
 The init command runs the upstream initializer with an absolute project path,
-then replaces only the new project's generated AGENTS pointer with Codex
-guidance. Copied tools are not patched. It does not render. Existing projects
-are refused; resume them from STATE.md rather than reinitializing.
+then normalizes the new project's STATE.md and AGENTS.md. For Film mode it
+also updates host guidance in HANDOFF.md and INTERVIEW.md. The copied tools
+remain pinned. Init creates the project
+without rendering and refuses existing project directories. Resume an existing
+project from STATE.md using the repository's `$cinecode` skill.
 Film methodology remains available with --mode film but has not been qualified
 end-to-end by this MVP.
 
@@ -41,12 +43,12 @@ and tool arguments must be reviewed. Do not run an untrusted film project.
 
 | Upstream assumption | Adapter behavior |
 |---|---|
-| Skill tool activates hooks | Native repo skill loads instructions; no hooks bridge |
-| AskUserQuestion / AskQuestion | Available host question tool or clear text; retain actual user answer |
-| SendUserFile / wrap_up | Host preview or absolute local media link; ordinary turn completion |
-| run_in_background | Current exec session plus durable status/log/exit record |
-| Claude transcripts / usage.py / helper model names | No equivalent meter claimed; record known status and UNKNOWN usage |
-| ccd start_session / claude:// / handoff.py | Checkpoint files; continue current chat, create another only when requested |
+| Skill activation triggers lifecycle hooks | Native repo skill loads instructions; no hooks bridge |
+| Host question interface | Available host question tool or clear text; retain actual user answer |
+| Host artifact presentation / turn completion | Host preview or absolute local media link; ordinary turn completion |
+| Host background execution | Current exec session plus durable status/log/exit record |
+| Upstream transcript-based usage and helper model selection | No equivalent meter claimed; record known status and UNKNOWN usage |
+| Upstream session API and handoff mechanism | Checkpoint files; continue current chat, create another only when requested |
 | Automatic update-tools on resume | Keep project tools pinned; explicit reviewed update only |
 | ~/.cinecode default storage | Supported paths redirected into workspace/.cinecode-state |
 | qc.py all exit0 | Inspect report and relevant deciding checks; not all-checks-PASS |
@@ -74,7 +76,7 @@ approval from a general film request.
 
 Protection is REDUCED_NO_HOOKS. The adapter provides workflow instructions,
 pin verification and supported state redirection. It does not intercept every
-tool, prove that an artifact was seen, parse Claude transcripts, enforce helper
+tool, prove that an artifact was seen, parse upstream transcripts, enforce helper
 ownership, meter context, or make upstream's fail-open guard fail-closed.
 
 Supported CINECODE_* stores and browser TEMP/TMP are project-owned. HOME,
@@ -94,7 +96,7 @@ remote resources.
 
 Capture resume stamps do not validate cached output bytes. --verify tests only
 one selected repeat/order sequence on that host. It does not prove cross-GPU
-parity, exact Shared Core semantics or recipe identity.
+parity across machines.
 
 ## Qualification and upstream updates
 

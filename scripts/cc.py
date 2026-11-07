@@ -222,6 +222,64 @@ def require_vendor():
         raise ValueError("upstream verification failed: " + "; ".join(result["errors"][:5]))
 
 
+PROJECT_RESUME = (
+    "Open the adapter repository in Codex and invoke its repo-local `$cinecode` "
+    "skill (`.agents/skills/cinecode/SKILL.md`). Follow `docs/HOST_ADAPTATION.md` "
+    "in that repository. Keep the copied project tools pinned and run them "
+    "through `scripts/cc.py tool`."
+)
+
+
+def normalize_project_guidance(project, mode):
+    state = project / "STATE.md"
+    lines = state.read_text(encoding="utf-8").splitlines(keepends=True)
+    # The pinned templates place the resume instruction on line 3. Quick keeps
+    # Kit and Method on that line; Film has separate fields and a Now reminder.
+    if not lines[2].startswith("Read this first in "):
+        raise ValueError("unexpected initial STATE.md resume instruction")
+    if mode == "quick":
+        _, metadata = lines[2].split(". Kit: ", 1)
+        lines[2] = f"{PROJECT_RESUME} Read this state first. Kit: {metadata}"
+    else:
+        lines[2] = (
+            f'{PROJECT_RESUME} Read "Resume here" first and update "Now" '
+            'before ending each turn. Keep it short.\n'
+        )
+        interview = project / "INTERVIEW.md"
+        intro, questions = interview.read_text(encoding="utf-8").split(
+            "when the environment has an interactive multiple-choice tool\n", 1
+        )
+        _, questions = questions.split("), USE IT: ", 1)
+        interview.write_text(
+            intro + "when Codex offers an interactive multiple-choice tool, use it:\n  " + questions,
+            encoding="utf-8",
+        )
+        handoff = project / "HANDOFF.md"
+        checklist, _ = handoff.read_text(encoding="utf-8").split("- [ ] Silent snapshot saved", 1)
+        handoff.write_text(
+            checklist
+            + '- [ ] If the film has its own Git root, save a snapshot with '
+            '`scripts/cc.py tool NAME snapshot "handoff: <phase>"`.\n\n'
+            + "## Ask in the user's language\n"
+            "Confirm whether to continue in this chat or a new chat. Open another "
+            "chat only at the user's request.\n\n"
+            "## For the new chat\n"
+            f"1. {PROJECT_RESUME}\n"
+            '2. Read `STATE.md` ("Resume here" first) and the files it names.\n'
+            '3. Start with "Next action" and carry on through the approval gates.\n',
+            encoding="utf-8",
+        )
+    state.write_text("".join(lines), encoding="utf-8")
+    (project / "AGENTS.md").write_text(
+        "# CineCode Codex film project\n\n"
+        f"{PROJECT_RESUME}\n\n"
+        "Read STATE.md and its referenced notes before resuming. The adapter's "
+        "host guidance governs project execution. Approval gates require actual "
+        "user decisions. Protection is REDUCED_NO_HOOKS.\n",
+        encoding="utf-8",
+    )
+
+
 def init_project(name, mode, workspace):
     require_vendor()
     project = project_path(name, workspace)
@@ -234,13 +292,7 @@ def init_project(name, mode, workspace):
     r = subprocess.run(cmd, cwd=workspace, env=child_env(workspace))
     if r.returncode:
         return r.returncode
-    # Replace only the adapter-created project guidance, never vendored files.
-    (project / "AGENTS.md").write_text(
-        "# CineCode Codex film project\n\n"
-        "Use the repository .agents/skills/cinecode/SKILL.md and docs/HOST_ADAPTATION.md.\n"
-        "Host adapter instructions take precedence over Claude-specific upstream examples.\n"
-        "Read STATE.md and notes before resuming. Never update tools automatically.\n"
-        "No hooks are installed; approvals must be actual user decisions.\n", encoding="utf-8")
+    normalize_project_guidance(project, mode)
     print("Project created. No film or media was generated.")
     return 0
 

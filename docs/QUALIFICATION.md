@@ -10,7 +10,7 @@ Date: 2026-11-07, Asia/Bangkok. This historical local run used Windows. That his
 | Vendor verification | PASS, 168 exact Git-blob files | Pinned commit 67f9807112b97ae253d4a5f0eccaccc46c3b2633 |
 | Drift tests | PASS | Same-size edit, deletion, unexpected file, changed manifest/pin, unsafe path |
 | Doctor | PASS | Existing prerequisites and writable workspace; not render proof |
-| Standalone export/relocation | PASS | Package path with spaces, cwd outside package, explicit external workspace; no research dependency |
+| Standalone export/relocation | PASS | Package path with spaces, cwd outside package, explicit external workspace; standalone installation |
 | Adapter regressions | PASS, 15 tests | Non-rendering stdlib tests, including relocation, missing tools, literal argv/cwd/exit propagation |
 | Bundled Skill Creator validation | PASS | Skill frontmatter/naming; separate from native discovery |
 | Native skill discovery | PASS | Real Codex app-server skills/list, scope=repo, enabled=true |
@@ -30,7 +30,7 @@ ANGLE/D3D11. Synthetic captured frames use Canvas2D, not a qualified WebGL
 renderer. See the separate hosted qualification below for subsequent macOS results.
 
 These native/media checks ran in the approved host execution mode. Earlier
-CC-01 sandbox Chrome startup failed on Crashpad; this release does not claim
+sandbox Chrome startup failed on Crashpad; this release does not claim
 that failure is fixed. One sandbox Git status attempt reported "must be run in
 a work tree"; authorized host checks confirmed a normal non-bare repository.
 Its root cause was not established. No browser --no-sandbox, global graphics changes or dependency installs
@@ -38,7 +38,7 @@ were used.
 
 ## Hosted Windows and macOS qualification
 
-Both jobs passed on the CC-02X published commit
+Both jobs passed on this published commit
 `3e151ca82c5c8d4223fa8810c2188965568dc7e1`.
 [GitHub Actions run 42349274464](https://github.com/neiroivanych/cinecode-codex/actions/runs/42349274464)
 
@@ -85,12 +85,10 @@ defines the metadata call; hosted discovery is measured independently.
 [Sanitized public summary](../evidence/qualification/windows-2026-11-07.json)
 contains versions, exact assertions and output hashes. Raw commands/logs, native
 events/answer, probe outputs, ffprobe JSON, PNG frames and MP4 are retained locally
-under ignored evidence/local/native-02 and evidence/local/smoke-02. Personal paths
-and account/session data are deliberately excluded from publication.
+under the ignored `evidence/local/` directory. The public summary omits personal
+paths and account/session data.
 
-The original CC-01 research informed this adapter; it is not a runtime dependency
-and its evidence was not edited. Vendor verification is against exact upstream
-Git blobs, rather than Windows checkout line endings.
+Vendor verification checks exact upstream Git blob bytes.
 
 The first local import used git archive with inherited Windows CRLF conversion.
 An independent Git-blob comparison caught this before commit/publication.
@@ -100,7 +98,7 @@ attempt logs remain local and are not the final passing evidence.
 
 ## Local Windows Quick experiment
 
-Lightfold exercised a complete bounded Quick workflow on Windows. The
+One local experiment exercised a complete bounded Quick workflow on Windows. The
 12-second film used code-generated visuals and locally synthesized sound, went
 through two owner revision rounds and finished at 1920×1080 and 24 fps with
 288 decoded frames. Full audio and video decode passed. The experiment used
@@ -115,11 +113,11 @@ decoded audio matched. Audio rendering determinism remains unverified.
 
 The experiment qualifies this Windows Quick path only. The film, workspace
 and raw evidence remain local. Film mode, Intel macOS, Linux, full Quick on
-macOS, Mac Desktop, Mac model invocation and NI integration remain outside
+macOS, Mac Desktop, and Mac model invocation remain outside
 verified scope. The adapter has no lifecycle hook bridge (`REDUCED_NO_HOOKS`).
 External TTS, models, assets and broader render paths such as WebGL are outside
 the hosted qualification.
 
-Other gaps include automatic presentation enforcement, Claude usage and
+Other gaps include automatic presentation enforcement, upstream usage and
 handoff equivalents, font fetching with a global cache, typography and story
 QA, clean-machine setup, interruption recovery and restricted-sandbox capture.

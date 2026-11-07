@@ -1,5 +1,11 @@
 # Changelog
 
+## 0.1.1-alpha — Unreleased
+
+- Select the release tag before running onboarding checks.
+- Start Quick and Film projects with Codex-compatible checkpoint and resume guidance.
+- Clarify adapter authorship and document a standalone distribution boundary.
+
 ## 0.1.0-alpha — 2026-11-07
 
 - Initial independent community Codex wrapper for pinned CineCode.
@@ -13,4 +19,4 @@
   remained HELD, and lossless stream copy preserved the approved final audio.
 - Experimental public alpha with `REDUCED_NO_HOOKS`. Mac Desktop, hosted model
   invocation, full Quick on macOS, Intel macOS, Linux and Film mode remain
-  unverified. No NI integration or automatic upstream updates.
+  unverified. Automatic upstream updates are disabled.

@@ -1,4 +1,4 @@
-"""Targeted CC-02M-A1 regressions. No render, media, models or service calls."""
+"""Targeted adapter regressions. No render, media, models or service calls."""
 import importlib.util
 import json
 import os

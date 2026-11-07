@@ -73,7 +73,8 @@ def discover(command, env, out):
 
     try:
         send({"id": 1, "method": "initialize", "params": {
-            "clientInfo": {"name": "cinecode_codex_qualification", "version": "0.1.0-alpha"},
+            "clientInfo": {"name": "cinecode_codex_qualification",
+                           "version": (cc.ROOT / "VERSION").read_text().strip()},
             "capabilities": {"experimentalApi": False}}})
         initialized = response(1)
         send({"method": "initialized", "params": {}})

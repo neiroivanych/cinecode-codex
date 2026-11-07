@@ -93,7 +93,6 @@
     }
   },
   "preservation": {
-    "cc01_evidence_files_unchanged": 341,
     "upstream_files_unmodified": true
   },
   "not_run": [
@@ -104,7 +103,6 @@
     "Linux",
     "external media/models/TTS",
     "hooks bridge",
-    "NI integration",
     "GitHub publication"
   ],
   "limits": [
