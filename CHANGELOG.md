@@ -1,6 +1,6 @@
 # Changelog
 
-## 0.1.1-alpha — Unreleased
+## 0.1.1-alpha — 2026-11-07
 
 - Select the release tag before running onboarding checks.
 - Start Quick and Film projects with Codex-compatible checkpoint and resume guidance.

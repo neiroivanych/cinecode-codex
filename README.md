@@ -1,7 +1,7 @@
 # cinecode-codex
 
 **Independent community Codex adapter for CineCode.**
-**Experimental public alpha** · Free and open source · `0.1.1-alpha` (in preparation).
+**Experimental public alpha** · Free and open source · `0.1.1-alpha`.
 
 Codex adapter created and maintained by [@neiroivanych](https://github.com/neiroivanych).
 
@@ -46,10 +46,9 @@ approval and a reviewed invocation. No API key is required by the adapter.
 
 ## Open and check
 
-Run these commands in order once the planned `v0.1.1-alpha` tag is published.
-The clone selects that tag before either check. Continue only after each
+Run these commands one at a time, in order. The clone selects the
+`v0.1.1-alpha` release tag before either check. Continue only after each
 command succeeds.
-Until then, the published `v0.1.0-alpha` can be selected by substituting its tag.
 Use `python3` in both lines if that is your Python command.
 
 ~~~sh

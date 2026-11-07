@@ -105,9 +105,9 @@ class Onboarding(unittest.TestCase):
             ["python", "-B", "scripts/cc.py", "verify"],
             ["python", "-B", "scripts/cc.py", "doctor"],
         ])
-        self.assertIn("in preparation", readme)
-        self.assertIn(f"`v{version}` tag is published", onboarding)
-        self.assertIn(f"## {version} — Unreleased", (ROOT / "CHANGELOG.md").read_text(encoding="utf-8"))
+        self.assertIn(f"· `{version}`.", readme)
+        changelog = (ROOT / "CHANGELOG.md").read_text(encoding="utf-8")
+        self.assertRegex(changelog, rf"(?m)^## {re.escape(version)} — \d{{4}}-\d{{2}}-\d{{2}}$")
         self.assertEqual(json.loads((ROOT / "adapter.json").read_text())["version_file"], "VERSION")
 
     def test_quick_initial_state_preserves_upstream_fields(self):
