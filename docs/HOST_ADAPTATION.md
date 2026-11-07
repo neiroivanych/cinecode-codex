@@ -31,6 +31,9 @@ end-to-end by this MVP.
 
 The tool launcher accepts a small list of local tools and passes arguments as
 argv, with an explicit project cwd. It returns their actual exit code.
+It supplies the upstream-supported CINECODE_KIT variable from the adapter
+installation's cinecode/ directory, so copied brief.py needs no caller override
+and can read the pinned references after relocation.
 It is not a general-purpose subprocess security sandbox: authored HTML/scripts
 and tool arguments must be reviewed. Do not run an untrusted film project.
 
@@ -76,7 +79,12 @@ ownership, meter context, or make upstream's fail-open guard fail-closed.
 
 Supported CINECODE_* stores and browser TEMP/TMP are project-owned. HOME,
 USERPROFILE and CODEX_HOME are not reassigned. Fonts.py has a hard-coded global
-cache and is not exposed by this runner. Asset search, fonts, sound/sample
+cache and is not exposed by this runner. Before preparing a child environment,
+the launcher rejects pre-existing symlinks/junctions at .cinecode-state, its tmp
+path and the exported mutable-store paths; all checks precede tmp creation and
+child launch. These setup-time checks are not an OS sandbox or a guarantee
+against concurrent path replacement.
+Asset search, fonts, sound/sample
 downloads, TTS, keys, usage and handoff tools are likewise not exposed as runner
 commands; approval of external work requires reviewing the exact direct
 invocation, storage and licenses first. This release is not a network firewall.

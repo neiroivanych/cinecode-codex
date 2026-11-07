@@ -8,6 +8,7 @@ from pathlib import Path
 import platform
 import re
 import shutil
+import stat
 import subprocess
 import sys
 import tempfile
@@ -26,6 +27,16 @@ TOOLS = {
 
 def digest(path):
     return hashlib.sha256(path.read_bytes()).hexdigest()
+
+
+def is_link(path):
+    """Detect symlinks and Windows junctions, including on Python 3.9."""
+    try:
+        info = path.lstat()
+    except FileNotFoundError:
+        return False
+    return stat.S_ISLNK(info.st_mode) or (
+        os.name == "nt" and info.st_reparse_tag == stat.IO_REPARSE_TAG_MOUNT_POINT)
 
 
 def verify(root=ROOT):
@@ -54,14 +65,14 @@ def verify(root=ROOT):
         if "LICENSE" not in expected or "SKILL.md" not in expected:
             raise ValueError("required upstream files missing from manifest")
         vendor = root / "cinecode"
-        if vendor.is_symlink() or not vendor.is_dir():
-            raise ValueError("vendor must be a real directory")
+        if is_link(vendor) or not vendor.is_dir():
+            raise ValueError("vendor root must be a real directory, not a symlink or junction")
         actual = set()
         for base, dirs, files in os.walk(vendor, followlinks=False):
             blocked_dirs = []
             for name in dirs + files:
                 p = Path(base) / name
-                linked = p.is_symlink() or getattr(p, "is_junction", lambda: False)()
+                linked = is_link(p)
                 if linked or not p.resolve().is_relative_to(vendor.resolve()):
                     errors.append("linked resource: " + p.relative_to(vendor).as_posix())
                     if name in dirs:
@@ -71,7 +82,7 @@ def verify(root=ROOT):
                 p = Path(base) / name
                 rel = p.relative_to(vendor).as_posix()
                 actual.add(rel)
-                if rel in expected and not p.is_symlink():
+                if rel in expected and not is_link(p):
                     e = expected[rel]
                     if p.stat().st_size != e["bytes"] or digest(p) != e["sha256"]:
                         errors.append("changed: " + rel)
@@ -85,7 +96,7 @@ def verify(root=ROOT):
 def workspace_path(value=None, root=ROOT):
     candidate = Path(value).expanduser() if value else root / "workspace"
     resolved = candidate.resolve()
-    if candidate.is_symlink() or getattr(candidate, "is_junction", lambda: False)():
+    if is_link(candidate):
         raise ValueError("workspace must not be a symlink or junction")
     if not value and resolved != root / "workspace":
         raise ValueError("default workspace must resolve inside the installation")
@@ -100,8 +111,7 @@ def project_path(name, workspace):
     if not re.fullmatch(r"[a-z0-9][a-z0-9-]{0,63}", name):
         raise ValueError("project name: lowercase ASCII letters, digits and hyphens, max 64")
     p = workspace / name
-    if (p.is_symlink() or getattr(p, "is_junction", lambda: False)() or
-            not p.resolve().is_relative_to(workspace)):
+    if is_link(p) or not p.resolve().is_relative_to(workspace):
         raise ValueError("project escapes workspace")
     return p
 
@@ -109,11 +119,8 @@ def project_path(name, workspace):
 def child_env(workspace):
     """Redirect supported CineCode stores. This is not an OS security sandbox."""
     state = workspace / ".cinecode-state"
+    allowed_state = workspace.resolve() / ".cinecode-state"
     tmp = state / "tmp"
-    tmp.mkdir(parents=True, exist_ok=True)
-    env = dict(os.environ, PYTHONDONTWRITEBYTECODE="1", PYTHONUTF8="1",
-               PYTHONIOENCODING="utf-8", CINECODE_NO_OPEN="1", CINECODE_DICE="offline",
-               TEMP=str(tmp), TMP=str(tmp), TMPDIR=str(tmp))
     paths = {
         "CINECODE_KEYS": "keys.env", "CINECODE_FORMATS": "formats",
         "CINECODE_PYTHON_CACHE": "python.txt", "CINECODE_GUARD_SEEN": "guard-seen",
@@ -124,7 +131,16 @@ def child_env(workspace):
         "CINECODE_SHOWN_SOUNDS": "shown-sounds.json",
         "CINECODE_SOUNDS_CACHE": "sounds", "CINECODE_SAMPLES_CACHE": "samples",
     }
+    # Check every managed destination before mkdir or exporting it to a child.
+    for path in [state, tmp, *(state / name for name in paths.values())]:
+        if is_link(path) or not path.resolve().is_relative_to(allowed_state):
+            raise ValueError("managed state path must not be linked or leave its root: " + str(path))
+    tmp.mkdir(parents=True, exist_ok=True)
+    env = dict(os.environ, PYTHONDONTWRITEBYTECODE="1", PYTHONUTF8="1",
+               PYTHONIOENCODING="utf-8", CINECODE_NO_OPEN="1", CINECODE_DICE="offline",
+               TEMP=str(tmp), TMP=str(tmp), TMPDIR=str(tmp))
     env.update({k: str(state / v) for k, v in paths.items()})
+    env["CINECODE_KIT"] = str(ROOT / "cinecode")
     return env
 
 
