@@ -1,7 +1,7 @@
 # cinecode-codex
 
 **Independent community Codex adapter for CineCode.**
-Free and open source. Version **0.1.0-alpha — Experimental**.
+**Experimental public alpha** · Free and open source · `0.1.0-alpha`.
 
 [CineCode](https://github.com/sarpstar/cinecode) was created by **sarpstar
 (Sarp Yıldız)** and is used under its MIT License. This adapter is a separate
@@ -21,16 +21,21 @@ configuration is installed.
 This is an experimental workflow adapter, not a standalone video editor or a
 qualified HVPC renderer. See [actual qualification](docs/QUALIFICATION.md) and
 [host differences/reduced protection](docs/HOST_ADAPTATION.md).
-Windows Server 2025 x64 and macOS 15 arm64 passed hosted adapter and synthetic
-media qualification. The [qualification report](docs/QUALIFICATION.md)
-links the runner evidence and separates native skill metadata from model
-invocation and Codex Desktop on a user Mac. Linux is **not verified**.
+
+| Environment | Qualification |
+| --- | --- |
+| Windows x64 | Hosted adapter and synthetic media PASS. A bounded local Quick film, Lightfold, completed through two owner revision rounds and final decode. Automatic CineCode delivery remained HELD. |
+| macOS 15 arm64 | Hosted adapter and synthetic media PASS. Full Quick, Codex Desktop on a user Mac and `$cinecode` model invocation are NOT VERIFIED. |
+| Intel macOS, Linux and Film mode | NOT VERIFIED. |
+
+Both hosted jobs verified credential-free Codex `skills/list` metadata. See the
+[qualification report](docs/QUALIFICATION.md) for test scope and evidence.
 
 ## Prerequisites
 
 - Codex with repo-local skills and an existing user sign-in for native testing.
 - Python 3.9+, Node.js 22+, FFmpeg and ffprobe.
-- Chrome, Chromium or Edge for capture; CHROME_PATH can select an existing EXE.
+- Chrome, Chromium or Edge for capture. `CHROME_PATH` can select an existing browser executable.
 
 Nothing installs automatically. Doctor checks existing tools without rendering
 or contacting model/media services. This release's launcher exposes local tools;
@@ -39,24 +44,26 @@ approval and a reviewed invocation. No API key is required by the adapter.
 
 ## Open and check
 
-Open this repository as a Codex project. From its root:
+Clone the source and run the two checks from its root.
 
 ~~~sh
+git clone https://github.com/neiroivanych/cinecode-codex.git
+cd cinecode-codex
 python -B scripts/cc.py verify
 python -B scripts/cc.py doctor
 ~~~
 
-On systems where Python is named python3, use python3. Doctor returns nonzero for
-missing requirements and reports browser launch as NOT_RUN. Windows and macOS
-browser discovery paths are separated; Linux uses PATH candidates.
+To use the published alpha, check out `v0.1.0-alpha` after cloning. On systems
+where Python is named `python3`, use that command. Doctor returns nonzero for
+missing prerequisites and reports browser launch as `NOT_RUN`.
 
-Invoke **$cinecode** explicitly in Codex, for example:
+Open the cloned `cinecode-codex` folder as a project in Codex and invoke
+**$cinecode** explicitly, for example:
 
 > $cinecode Inspect adapter compatibility only; do not start a film.
 
-The skill lives in .agents/skills/cinecode/SKILL.md. File presence and doctor
-are not proof of native discovery. Existing local native test evidence is
-described in QUALIFICATION.md; it does not certify every Codex Desktop build.
+The repository skill lives in [.agents/skills/cinecode/SKILL.md](.agents/skills/cinecode/SKILL.md).
+Native discovery is tested separately from `doctor` and Desktop behavior.
 
 ## User projects
 
@@ -73,9 +80,16 @@ The default is repository-owned workspace/my-film/. An explicit --workspace
 directory supports a read-only installation. Nothing depends on a parent
 research folder. Projects and state are ignored by Git; back them up separately.
 
-No real Quick/Film output is claimed by the initial synthetic qualification.
-Upstream's Claude hooks/session APIs are not available here; protection is
-**REDUCED_NO_HOOKS**. A user's actual decision is required at approval gates.
+## Known limitations
+
+- Protection is **`REDUCED_NO_HOOKS`**. The adapter has no Codex lifecycle hook
+  bridge. Approval gates rely on actual owner decisions.
+- CineCode QC can hold intentional sparse, dark or low-action compositions.
+- Audio byte determinism is unverified. Lightfold's final retained the
+  owner-approved audio through lossless stream copy after CineCode regenerated
+  different audio bytes.
+- External TTS, models and assets are outside this qualification. Hosted
+  synthetic media checks cover Canvas and local tone.
 
 ## Reproduce checks
 
@@ -104,4 +118,3 @@ models. Output directories must be new. Logs/media remain ignored.
 
 There is no NI AI Creator Tools integration. A future distributor can package
 the same adapter using [this boundary](docs/NI_INTEGRATION_BOUNDARY.md).
-The source is available ahead of the first tagged alpha release.

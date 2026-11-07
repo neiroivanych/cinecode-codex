@@ -38,8 +38,9 @@ were used.
 
 ## Hosted Windows and macOS qualification
 
-Both jobs passed in [run 42349069486](https://github.com/neiroivanych/cinecode-codex/actions/runs/42349069486)
-on workflow commit `e9ee7339f9c8492f8334415ec396f6e7e409eb87`.
+Both jobs passed on the CC-02X published commit
+`3e151ca82c5c8d4223fa8810c2188965568dc7e1`.
+[GitHub Actions run 42349274464](https://github.com/neiroivanych/cinecode-codex/actions/runs/42349274464)
 
 | Check | Windows | macOS |
 | --- | --- | --- |
@@ -68,9 +69,9 @@ workspace. Link tests use Windows junctions or real directory symlinks on
 macOS. The no-media initialization checks the real copied brief helper.
 
 The CI synthetic route reuses the local Canvas/tone fixture without a model
-turn. The separate WebGL diagnostic is outside the CI Canvas scope. The opt-in local smoke command still requires its discovery/invocation
-receipt. CI separately attempts app-server metadata discovery in a fresh
-credential-free home. A model invocation and Codex Desktop are separate
+turn. The separate WebGL diagnostic is outside the CI Canvas scope. The opt-in
+local smoke command still requires its discovery/invocation receipt. CI
+separately attempts app-server metadata discovery in a fresh credential-free home. A model invocation and Codex Desktop are separate
 checks. The synthetic result does not qualify a full Quick or Film run.
 
 Runner labels and mutable images are documented in
@@ -97,16 +98,28 @@ The snapshot was rebuilt from raw git cat-file blobs; the manifest was
 regenerated and native/media checks repeated on those exact bytes. Earlier
 attempt logs remain local and are not the final passing evidence.
 
-## Readiness for a first real Quick experiment
+## Local Windows Quick experiment
 
-The prerequisites, native instruction loading and tiny capture/encode path are
-ready for a separately authorized **bounded local-asset Quick experiment**.
-Open this repository in Codex and use its repository skill. This is not approval
-to make that film now, nor a claim that the entire Quick workflow works.
+Lightfold exercised a complete bounded Quick workflow on Windows. The
+12-second film used code-generated visuals and locally synthesized sound, went
+through two owner revision rounds and finished at 1920×1080 and 24 fps with
+288 decoded frames. Full audio and video decode passed. The experiment used
+no external AI image or video generation.
 
-Remaining gaps: no hooks, no automatic approval/presentation enforcement,
-no Claude usage/handoff equivalence; font fetching has a global-cache issue;
-three.js/fonts may need network assets; full audio/master/typography/story QA,
-job interruption/resume, rendering inside a restricted sandbox, clean-machine
-installation and cross-platform behavior remain unqualified. User taste and
-listening decisions cannot be inferred from numerical checks.
+CineCode automatic delivery remained **HELD**. Its hook, low-action, repeat
+and brightness checks flagged this sparse, dark composition. The owner
+approved picture and sound. CineCode regenerated different audio bytes at
+the final stage, so the final review file paired the native final picture with
+the approved AAC stream by lossless stream copy. The approved packets and
+decoded audio matched. Audio rendering determinism remains unverified.
+
+The experiment qualifies this Windows Quick path only. The film, workspace
+and raw evidence remain local. Film mode, Intel macOS, Linux, full Quick on
+macOS, Mac Desktop, Mac model invocation and NI integration remain outside
+verified scope. The adapter has no lifecycle hook bridge (`REDUCED_NO_HOOKS`).
+External TTS, models, assets and broader render paths such as WebGL are outside
+the hosted qualification.
+
+Other gaps include automatic presentation enforcement, Claude usage and
+handoff equivalents, font fetching with a global cache, typography and story
+QA, clean-machine setup, interruption recovery and restricted-sandbox capture.
