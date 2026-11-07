@@ -21,7 +21,10 @@ configuration is installed.
 This is an experimental workflow adapter, not a standalone video editor or a
 qualified HVPC renderer. See [actual qualification](docs/QUALIFICATION.md) and
 [host differences/reduced protection](docs/HOST_ADAPTATION.md).
-Hosted Windows/macOS qualification is tracked separately from Codex Desktop in the qualification report. Linux is **not verified**.
+Windows Server 2025 x64 and macOS 15 arm64 passed hosted adapter and synthetic
+media qualification. The [qualification report](docs/QUALIFICATION.md)
+links the runner evidence and separates native skill metadata from model
+invocation and Codex Desktop on a user Mac. Linux is **not verified**.
 
 ## Prerequisites
 

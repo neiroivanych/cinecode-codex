@@ -3,8 +3,7 @@
 ## Historical local Windows qualification
 
 **Experimental. Windows native-skill + tiny synthetic smoke PASS.**
-Date: 2026-11-07, Asia/Bangkok. macOS: **NOT VERIFIED**.
-Linux: **NOT VERIFIED**. That historical smoke did not run a full Quick film or Film mode.
+Date: 2026-11-07, Asia/Bangkok. This historical local run used Windows. That historical smoke did not run a full Quick film or Film mode.
 
 | Check | Actual result | Scope |
 |---|---|---|
@@ -28,7 +27,7 @@ Environment actually exercised: Windows 10.0.26200 x86_64 (build identifier),
 Codex CLI/app-server0.160.1, Python3.14.3, Node26.4.0, FFmpeg/ffprobe8.1.2,
 Chrome156.0.8078.80. WebGL2 READY diagnostic reported Intel Iris Xe via
 ANGLE/D3D11. Synthetic captured frames use Canvas2D, not a qualified WebGL
-renderer. Code paths for macOS/Linux exist but have not been run there.
+renderer. See the separate hosted qualification below for subsequent macOS results.
 
 These native/media checks ran in the approved host execution mode. Earlier
 CC-01 sandbox Chrome startup failed on Crashpad; this release does not claim
@@ -39,9 +38,28 @@ were used.
 
 ## Hosted Windows and macOS qualification
 
-The workflow targets GitHub-hosted Windows Server 2025 x64 (`windows-2025`)
-and macOS 15 arm64 (`macos-15`). Runner image versions and exact runtimes
-come from each run. Hosted results are pending until the jobs execute.
+Both jobs passed in [run 42349069486](https://github.com/neiroivanych/cinecode-codex/actions/runs/42349069486)
+on workflow commit `e9ee7339f9c8492f8334415ec396f6e7e409eb87`.
+
+| Check | Windows | macOS |
+| --- | --- | --- |
+| Hosted runner | `windows-2025`, Server 2025 build 26100, x64 | `macos-15`, macOS 15.8.2, arm64 |
+| Image | `win25-vs2026` `20261103.298.1` | `macos15` `20261104.0514.1` |
+| Python / Node | 3.12.10 / 22.23.4 | 3.12.10 / 22.23.4 |
+| FFmpeg / ffprobe | 9.0.2 Gyan essentials / 9.0.2 | 9.0.2 / 9.0.2 |
+| Chrome | 156.0.8078.80 | 157.0.8103.39 |
+| Adapter CI / vendor / doctor | PASS / 168 of 168 / PASS | PASS / 168 of 168 / PASS |
+| Regressions | 20 run, 20 pass, 0 fail, 0 skip. Real junctions. | 20 run, 20 pass, 0 fail, 0 skip. Real directory symlinks. |
+| Relocation / external workspace / copied KIT | PASS / PASS / PASS | PASS / PASS / PASS |
+| Synthetic browser/media | PASS, selected-frame repeat, capture/resume, H.264/AAC metadata and full decode | PASS, same checks |
+| Codex skill package | PASS | PASS |
+| Native Codex discovery | PASS, credential-free `skills/list`, CLI 0.160.1 | PASS, credential-free `skills/list`, CLI 0.160.1 |
+| Hosted model invocation | NOT VERIFIED | NOT VERIFIED |
+| Codex Desktop UI | NOT VERIFIED | NOT VERIFIED |
+
+Mac CI verified the adapter and synthetic media path on the stated hosted
+arm64 runner. Codex Desktop on a real user Mac, Intel macOS, a full Quick or
+Film workflow on macOS, and Linux remain unverified.
 
 The job sets up Python 3.12 and Node 22, provisions FFmpeg only in the disposable
 runner when missing, and uses the image's browser. It checks the tracked Git
