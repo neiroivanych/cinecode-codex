@@ -138,6 +138,40 @@ class Onboarding(unittest.TestCase):
                 self.assertIn("Approval gates require actual user decisions", agents)
                 self.assertIn("REDUCED_NO_HOOKS", agents)
 
+    def test_owner_language_rule_reaches_quick_film_and_precedes_upstream(self):
+        skill = (ROOT / ".agents/skills/cinecode/SKILL.md").read_text(encoding="utf-8")
+        surfaces = [skill.split("Read REPO/docs/HOST_ADAPTATION.md", 1)[0]]
+        for mode in ("quick", "film"):
+            surfaces.extend((self.workspace / mode / name).read_text(encoding="utf-8")
+                            for name in ("STATE.md", "AGENTS.md"))
+        for text in surfaces:
+            prose = " ".join(text.split())
+            explicit = prose.index("explicit current owner language request")
+            conversation = prose.index("language of the current owner conversation")
+            preference = prose.index("preference", conversation)
+            self.assertLess(explicit, conversation)
+            self.assertLess(conversation, preference)
+            self.assertIn("scope", prose[explicit:conversation])
+            self.assertIn("unclear", prose[preference:])
+            self.assertRegex(prose, r"[Tt]echnical briefs, attached specifications, filenames, code, "
+                                    r"subtitles, on-screen text, narration and logs do(?:es)? not set")
+
+    def test_motion_review_guidance_requires_playback_without_a_universal_limit(self):
+        docs = (ROOT / "docs/HOST_ADAPTATION.md").read_text(encoding="utf-8")
+        motion = docs.split("## Perceptual motion review", 1)[1].split("\n## ", 1)[0]
+        prose = " ".join(motion.split())
+        self.assertIn("continuous MP4 at normal playback speed", prose)
+        self.assertIn("`UNVERIFIED` when playback was not assessed", prose)
+        self.assertIn("no universal px/frame threshold", prose)
+        self.assertNotRegex(prose, r"\d+(?:\.\d+)?\s*px\s*/\s*frame")
+        self.assertIn("preserve the approved temporal treatment in final", prose)
+        for mode in ("quick", "film"):
+            for name in ("STATE.md", "AGENTS.md"):
+                with self.subTest(mode=mode, file=name):
+                    guidance = (self.workspace / mode / name).read_text(encoding="utf-8")
+                    self.assertIn("MP4 at normal playback speed", guidance)
+                    self.assertIn("UNVERIFIED if playback was not assessed", guidance)
+
     def test_tracked_adapter_surface_has_no_forbidden_terms(self):
         paths = adapter_paths()
         self.assertIn(ROOT / "README.md", paths)

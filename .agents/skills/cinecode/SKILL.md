@@ -9,6 +9,16 @@ Resolve REPO from this file: three parents above the skill directory. KIT is
 REPO/cinecode. Use REPO/workspace or an explicitly selected writable workspace
 for film projects.
 
+For owner-facing communication, use the explicit current owner language request
+within its intended scope. Otherwise use the language of the current owner
+conversation. Fall back to an established preference only when the current
+conversation language is unclear. Apply this to questions, production cards,
+progress notes, owner gates, review prompts, revision summaries and delivery
+summaries. The language of technical briefs, attached specifications, filenames,
+code, subtitles, on-screen text, narration and logs does not set the conversation
+language. Technical filenames, commands, code and machine-readable evidence
+retain their technical format.
+
 Read REPO/docs/HOST_ADAPTATION.md, then KIT/SKILL.md. Treat this wrapper and the
 host adaptation as the translation of upstream host-specific instructions. Load only
 the upstream reference sections needed for the current step.
@@ -46,6 +56,15 @@ a film. Native invocation probe marker: CINECODE_CODEX_SKILL_LOADED.
 - Preserve Quick/Film sample-first review, diagnostic-before-rebuild, targeted
   notes, unchanged shots and the user's Keep list. Inspect QC reports and run
   deciding checks: qc.py all exit zero is not an all-checks-PASS verdict.
+
+- For potentially fast continuous motion, review a continuous MP4 at normal
+  playback speed. Spline continuity and contact sheets or frame strips cannot
+  establish perceptual smoothness. Record `UNVERIFIED` if playback was not
+  assessed. Use the motion checklist in REPO/docs/HOST_ADAPTATION.md to record
+  the shown artifact, effective temporal treatment and owner decision.
+- When `score()` produces deliberate events outside the upstream sound metadata,
+  maintain `review/score-events.json` for the reviewed MP4. Use `cc.py score-events`
+  to report declarations separately from upstream QC and owner listening.
 
 ## Consent and boundaries
 

@@ -1,10 +1,11 @@
 #!/usr/bin/env python3
 """CineCode Codex adapter. Python standard library only; no automatic installation."""
 import argparse
+from decimal import Decimal, InvalidOperation
 import hashlib
 import json
 import os
-from pathlib import Path
+from pathlib import Path, PureWindowsPath
 import platform
 import re
 import shutil
@@ -26,7 +27,11 @@ TOOLS = {
 
 
 def digest(path):
-    return hashlib.sha256(path.read_bytes()).hexdigest()
+    sha = hashlib.sha256()
+    with path.open("rb") as file:
+        for chunk in iter(lambda: file.read(1024 * 1024), b""):
+            sha.update(chunk)
+    return sha.hexdigest()
 
 
 def is_link(path):
@@ -226,7 +231,15 @@ PROJECT_RESUME = (
     "Open the adapter repository in Codex and invoke its repo-local `$cinecode` "
     "skill (`.agents/skills/cinecode/SKILL.md`). Follow `docs/HOST_ADAPTATION.md` "
     "in that repository. Keep the copied project tools pinned and run them "
-    "through `scripts/cc.py tool`."
+    "through `scripts/cc.py tool`. "
+    "For owner-facing communication, use an explicit current owner language request within its scope, "
+    "otherwise the language of the current owner conversation, otherwise a previously established "
+    "owner preference when the conversation language is unclear. Technical briefs, attached specifications, "
+    "filenames, code, subtitles, on-screen text, narration and logs do not set the conversation language. "
+    "Keep technical filenames, commands, code and machine-readable evidence in their technical format. "
+    "For potentially fast continuous motion, assess the MP4 at normal playback speed. "
+    "Record the artifact, FPS, playback assessment (REVIEWED or UNVERIFIED if playback was not assessed), "
+    "temporal treatment and owner decision. Follow the host guidance for matching review and final exposure."
 )
 
 
@@ -297,6 +310,142 @@ def init_project(name, mode, workspace):
     return 0
 
 
+def project_local_path(project, name):
+    relative = PureWindowsPath(name)
+    if (relative.anchor or not relative.parts or
+            any(part == ".." or ":" in part or part.endswith((" ", ".")) or
+                PureWindowsPath(part).is_reserved() for part in relative.parts)):
+        raise ValueError("expected a project-relative path")
+    path = project
+    for part in relative.parts:
+        path = path / part
+        if is_link(path):
+            raise ValueError("project evidence paths must not use symlinks or junctions")
+    if not path.resolve().is_relative_to(project.resolve()):
+        raise ValueError("path escapes project")
+    return path
+
+
+def media_duration(video):
+    try:
+        probe = subprocess.run(
+            ["ffprobe", "-v", "error", "-protocol_whitelist", "file", "-f", "mov",
+             "-show_entries", "format=duration", "-of", "default=nw=1:nk=1", str(video)],
+            capture_output=True, text=True, encoding="utf-8", errors="replace", timeout=30,
+        )
+        if probe.returncode:
+            raise ValueError("ffprobe could not read MP4 duration")
+        duration = Decimal(probe.stdout.strip())
+    except (OSError, subprocess.TimeoutExpired, InvalidOperation) as exc:
+        raise ValueError("ffprobe could not read MP4 duration") from exc
+    if not duration.is_finite() or duration <= 0:
+        raise ValueError("MP4 duration must be positive and finite")
+    return duration
+
+
+SCORE_CATEGORIES = ("score_accent", "sfx", "foley", "music", "ambience")
+
+
+def file_version(path):
+    info = path.stat()
+    return info.st_dev, info.st_ino, info.st_size, info.st_mtime_ns
+
+
+def score_event_evidence(project, video):
+    if video.suffix.lower() != ".mp4" or not video.is_file():
+        raise ValueError("expected an existing project MP4")
+    sidecar = project_local_path(project, "review/score-events.json")
+    if not sidecar.exists():
+        return {"status": "UNKNOWN", "reason": "no review/score-events.json"}
+    if not sidecar.is_file():
+        raise ValueError("score-event sidecar must be a regular file")
+    try:
+        data = json.loads(sidecar.read_text(encoding="utf-8-sig"), parse_float=Decimal)
+    except (InvalidOperation, RecursionError) as exc:
+        raise ValueError("invalid JSON in score-event sidecar") from exc
+    if (not isinstance(data, dict) or type(data.get("schema_version")) is not int or
+            data["schema_version"] != 1):
+        raise ValueError("unsupported score-event schema_version (expected 1)")
+    expected_hash = data.get("media_sha256")
+    if not isinstance(expected_hash, str) or not re.fullmatch(r"[0-9a-fA-F]{64}", expected_hash):
+        raise ValueError("media_sha256 must be a SHA-256 hex digest")
+    version = file_version(video)
+    if digest(video) != expected_hash.lower():
+        raise ValueError("MP4 SHA-256 does not match media_sha256")
+    events = data.get("events")
+    if not isinstance(events, list):
+        raise ValueError("events must be an array")
+    duration = media_duration(video)
+    if file_version(video) != version:
+        raise ValueError("MP4 changed during evidence validation")
+    ids = set()
+    counts = dict.fromkeys(SCORE_CATEGORIES, 0)
+    for index, event in enumerate(events, 1):
+        if not isinstance(event, dict):
+            raise ValueError(f"event {index} must be an object")
+        ident, category = event.get("id"), event.get("category")
+        if not isinstance(ident, str) or not ident or ident != ident.strip() or ident in ids:
+            raise ValueError(f"event {index} must have a nonempty, unique id without surrounding whitespace")
+        if category not in SCORE_CATEGORIES:
+            raise ValueError(f"event {index} has an invalid category")
+        start, end = event.get("start"), event.get("end")
+        if not all(type(t) in (int, Decimal) and Decimal(t).is_finite() for t in (start, end)):
+            raise ValueError(f"event {index} must have finite numeric start and end times")
+        if not 0 <= start < end <= duration:
+            raise ValueError(f"event {index} must satisfy 0 <= start < end <= media duration")
+        ids.add(ident)
+        counts[category] += 1
+    return {"status": "VALID", "hash_matched": True, "media_sha256": expected_hash.lower(),
+            "declared_events": len(events), "by_category": counts}
+
+
+def tool_command(project, workspace, tool):
+    script = project / "tools" / TOOLS[tool]
+    if not script.is_file():
+        raise ValueError("tool not present in this project/mode")
+    env = child_env(workspace)
+    if tool in ("make", "capture"):
+        chrome = browser_path()
+        if not chrome:
+            raise ValueError("Chrome/Chromium/Edge missing; set CHROME_PATH or ask the owner")
+        env["CHROME_PATH"] = chrome
+    cmd = ["node", str(script)] if script.suffix == ".mjs" else [sys.executable, "-B", str(script)]
+    return cmd, env
+
+
+def report_score_events(project, workspace, video_name, check):
+    upstream = {"status": "NOT_RUN"}
+    try:
+        video = project_local_path(project, video_name)
+        evidence = score_event_evidence(project, video)
+        if check and evidence["status"] == "UNKNOWN":
+            media_duration(video)
+    except (OSError, ValueError) as exc:
+        evidence = {"status": "INVALID", "reason": str(exc)}
+    if check and evidence["status"] != "INVALID":
+        try:
+            project_local_path(project, "tools/make.py")
+            cmd, env = tool_command(project, workspace, "make")
+            native = subprocess.run(cmd + ["check", str(video)], cwd=project, env=env,
+                                    capture_output=True, text=True, encoding="utf-8", errors="replace")
+            upstream = {"status": "REPORTED", "exit_code": native.returncode,
+                        "stdout": native.stdout, "stderr": native.stderr}
+        except (OSError, ValueError) as exc:
+            upstream = {"status": "ERROR", "exit_code": 2, "reason": str(exc)}
+        if upstream["status"] == "REPORTED" and evidence["status"] == "VALID":
+            try:
+                unchanged = digest(project_local_path(project, video_name)) == evidence["media_sha256"]
+            except (OSError, ValueError):
+                unchanged = False
+            if not unchanged:
+                evidence = {"status": "INVALID", "reason": "MP4 changed during upstream check"}
+    print(json.dumps({"upstream_qc": upstream, "adapter_evidence": evidence,
+                      "interpretation": "Adapter counts are declarations, separate from upstream QC. "
+                      "Audibility and owner listening were not assessed. "
+                      "Declarations do not establish the upstream event-density requirement."}, indent=2))
+    return upstream.get("exit_code", 0) or (2 if evidence["status"] == "INVALID" else 0)
+
+
 def main(argv=None):
     parser = argparse.ArgumentParser(description=__doc__)
     sub = parser.add_subparsers(dest="command", required=True)
@@ -307,6 +456,11 @@ def main(argv=None):
     init.add_argument("name")
     init.add_argument("--mode", choices=("quick", "film"), default="quick")
     init.add_argument("--workspace")
+    score = sub.add_parser("score-events", help="validate project-local score-event evidence")
+    score.add_argument("project")
+    score.add_argument("video", help="project-relative MP4 path")
+    score.add_argument("--workspace")
+    score.add_argument("--check", action="store_true", help="also run the existing upstream make check")
     tool = sub.add_parser("tool")
     tool.add_argument("project")
     tool.add_argument("--workspace")
@@ -325,17 +479,9 @@ def main(argv=None):
         project = project_path(a.project, ws)
         if not (project / "STATE.md").is_file():
             raise ValueError("no project STATE.md; do not infer a project from its filename")
-        script = project / "tools" / TOOLS[a.tool]
-        if not script.is_file():
-            raise ValueError("tool not present in this project/mode")
-        env = child_env(ws)
-        if a.tool in ("make", "capture"):
-            chrome = browser_path()
-            if not chrome:
-                raise ValueError("Chrome/Chromium/Edge missing; set CHROME_PATH or ask the owner")
-            env["CHROME_PATH"] = chrome
-        cmd = (["node", str(script)] if script.suffix == ".mjs" else
-               [sys.executable, "-B", str(script)])
+        if a.command == "score-events":
+            return report_score_events(project, ws, a.video, a.check)
+        cmd, env = tool_command(project, ws, a.tool)
         args = a.args[1:] if a.args[:1] == ["--"] else a.args
         return subprocess.call(cmd + args, cwd=project, env=env)
     except (OSError, ValueError) as e:
