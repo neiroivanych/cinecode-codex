@@ -25,12 +25,14 @@ This experimental adapter provides a Codex workflow for CineCode. See [actual qu
 
 | Environment | Qualification |
 | --- | --- |
-| Windows x64 | Clean local qualification PASS for the implementation. Earlier hosted adapter and synthetic media qualification PASS. |
-| macOS 15 arm64 | Earlier hosted adapter and synthetic media qualification PASS. Full Quick, Codex Desktop and model invocation remain unverified. |
+| Windows x64 | `v0.1.2-alpha` hosted adapter and synthetic media qualification PASS. Clean local qualification PASS. |
+| macOS 15 arm64 | `v0.1.2-alpha` hosted adapter and synthetic media qualification PASS. Full Quick, Codex Desktop and model invocation remain unverified. |
 | Intel macOS, Linux and Film production | NOT VERIFIED. |
 
-Hosted Windows and macOS qualification for this candidate is pending. See the
-[qualification report](docs/QUALIFICATION.md) for test scope and evidence.
+Hosted Windows and macOS qualification for `v0.1.2-alpha` passed on release
+commit `b5849d70793b53a08816dc9db3975cb79715824f`.
+[GitHub Actions run 42451846603](https://github.com/neiroivanych/cinecode-codex/actions/runs/42451846603) ·
+[Qualification scope](docs/QUALIFICATION.md)
 
 ## Prerequisites
 

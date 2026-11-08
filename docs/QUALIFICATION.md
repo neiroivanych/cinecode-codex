@@ -1,6 +1,6 @@
 # Qualification
 
-## 0.1.2-alpha candidate — clean local Windows qualification
+## v0.1.2-alpha release qualification
 
 The implementation at `04712fdc8e4eea432e957ccfc1fec9971227e362` passed in a clean
 local Windows clone. Verification matched all 168 vendored files to the pinned
@@ -18,10 +18,19 @@ the MP4 hash and reported one declared score accent. The same command with
 evidence returned `UNKNOWN`, and a wrong hash returned `INVALID` before native
 QC. The fixture establishes declaration validation and reporting behavior.
 
-Hosted Windows and macOS qualification for this candidate is pending. These
-local results cover bounded initialization and a fixture. Film production,
-full Quick on macOS, macOS Desktop and model invocation, Intel macOS and Linux
-remain outside the verified scope.
+Published release commit `b5849d70793b53a08816dc9db3975cb79715824f` passed hosted
+qualification on Windows Server 2025 x64 and macOS 15.8.2 arm64.
+[GitHub Actions run 42451846603](https://github.com/neiroivanych/cinecode-codex/actions/runs/42451846603)
+
+Each runner passed 45 of 45 tests with zero skips, verified 168 of 168 vendored
+files, and passed doctor, relocation and external workspace checks, synthetic
+browser/media checks, skill package validation and native repo-local discovery.
+Native discovery exercised credential-free `skills/list` metadata.
+
+The hosted results cover the adapter and synthetic media. Local results cover
+bounded initialization and a fixture. Hosted model invocation, Film production,
+full Quick on macOS, macOS Codex Desktop and model invocation, Intel macOS and
+Linux remain outside the verified scope.
 
 ## Historical local Windows qualification — 0.1.0-alpha
 
