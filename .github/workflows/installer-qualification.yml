@@ -9,6 +9,10 @@ permissions:
   contents: read
 
 jobs:
+  tag-equivalent:
+    name: Tag-equivalent packaging
+    uses: ./.github/workflows/installers.yml
+
   bootstrap:
     name: Bootstrap (${{ matrix.os }})
     runs-on: ${{ matrix.os }}

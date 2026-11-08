@@ -76,6 +76,9 @@ python -B installer/build/package.py --platform windows --ref HEAD --out "$outpu
 python -B installer/build/package.py --platform macos --ref HEAD --out "$output_dir"
 ```
 
+Release ZIPs store every member without compression so the same commit
+produces identical archive bytes across build environments.
+
 `--version` can assert the exact version in the chosen commit. Use a new output
 directory for repeated builds. The builder prints each ZIP's SHA-256. Existing
 files are reused during the Windows qualification by running the extracted

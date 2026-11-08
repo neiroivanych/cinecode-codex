@@ -23,7 +23,7 @@ import native_discovery
 PIN = "67f9807112b97ae253d4a5f0eccaccc46c3b2633"
 EXPECTED_VERSION = "0.1.3-alpha"
 EXPECTED_INSTALLER_VERSION = "0.1.0-alpha"
-EXPECTED_TESTS = 67
+EXPECTED_TESTS = 68
 WINDOWS = "Windows"
 MAC = "Darwin"
 BASE_ENV = {"PATH", "SYSTEMROOT", "WINDIR", "COMSPEC", "PATHEXT", "LANG", "LC_ALL",
@@ -78,7 +78,9 @@ class Qualification:
         archive = build_dir / f"CineCode-Setup-{label}.zip"
         self.bundle = self.base / "Extracted package"
         with zipfile.ZipFile(archive) as zipped:
-            manifest = json.loads(zipped.read("manifest.json"))
+            assert zipped.testzip() is None
+            manifest_bytes = zipped.read("manifest.json")
+            manifest = json.loads(manifest_bytes)
             tracked = self.run("tracked-paths", ["git", "ls-tree", "-rz", "--name-only", sha]).stdout.strip("\0").split("\0")
             install.validate_names(tracked)
             assert set(manifest["files"]) == set(tracked)
@@ -87,6 +89,7 @@ class Qualification:
             expected.update(payload_prefix + name for name in tracked)
             assert set(zipped.namelist()) == expected and len(zipped.namelist()) == len(expected)
             for member in zipped.infolist():
+                assert member.compress_type == zipfile.ZIP_STORED
                 assert stat.S_ISREG(member.external_attr >> 16)
                 if self.system == MAC and member.filename in (entry, script):
                     assert member.external_attr >> 16 & 0o777 == 0o755
@@ -100,9 +103,12 @@ class Qualification:
         assert metadata["source_commit"] == sha and metadata["adapter_version"] == EXPECTED_VERSION
         assert metadata["schema_version"] == 1 and metadata["installer_version"] == EXPECTED_INSTALLER_VERSION
         assert metadata["file_count"] == len(tracked)
-        (self.out / "manifest.json").write_text(json.dumps(metadata, indent=2), encoding="utf-8")
+        (self.out / "manifest.json").write_bytes(manifest_bytes)
+        shutil.copyfile(archive, self.out / archive.name)
         self.summary["archive"] = {"name": archive.name, "sha256": install.digest(archive),
                                    "file_count": len(tracked), "platform": self.key, "hashes": "PASS",
+                                   "compression": "ZIP_STORED",
+                                   "manifest_sha256": hashlib.sha256(manifest_bytes).hexdigest(),
                                    "payload_manifest_sha256": hashlib.sha256(json.dumps(
                                        metadata["files"], sort_keys=True, separators=(",", ":")).encode()).hexdigest(),
                                    "executable_bits": "PASS" if self.system == MAC else "N/A"}

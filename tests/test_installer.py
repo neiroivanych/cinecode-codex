@@ -6,6 +6,7 @@ import json
 import os
 from pathlib import Path
 import shutil
+import stat
 import subprocess
 import sys
 import tempfile
@@ -83,9 +84,34 @@ class Packaging(unittest.TestCase):
                     self.assertEqual((payload / name).read_bytes(), data)
                     self.assertEqual(info["sha256"], hashlib.sha256(data).hexdigest())
                 with zipfile.ZipFile(artifact) as archive:
+                    self.assertIsNone(archive.testzip())
+                    self.assertTrue(all(member.compress_type == zipfile.ZIP_STORED for member in archive.infolist()))
+                    for name, info in manifest["files"].items():
+                        mode = archive.getinfo(f"payload/cinecode-codex/{name}").external_attr >> 16
+                        self.assertEqual(stat.S_IMODE(mode), info["mode"])
                     if system == "macos":
                         for entry in ("INSTALL_CINECODE.command", "setup.sh"):
                             self.assertEqual(archive.getinfo(entry).external_attr >> 16 & 0o777, 0o755)
+
+    def test_release_zips_build_without_zlib(self):
+        # Block the import before zipfile loads so it uses its standard CRC fallback.
+        script = """import runpy, sys
+from pathlib import Path
+sys.modules['zlib'] = None
+import zipfile
+assert zipfile.zlib is None
+builder, root, commit, system, output = sys.argv[1:]
+archive_path = runpy.run_path(builder)['build'](Path(root), commit, system, Path(output))
+with zipfile.ZipFile(archive_path) as archive:
+    assert archive.testzip() is None
+"""
+        for system in ("windows", "macos"):
+            with self.subTest(system=system):
+                baseline = build(self.repo, self.head, system, self.root / (system + "-baseline"))
+                output = self.root / (system + "-without-zlib")
+                subprocess.run([sys.executable, "-B", "-c", script, SPEC.origin, str(self.repo),
+                                self.head, system, str(output)], check=True, timeout=30)
+                self.assertEqual((output / baseline.name).read_bytes(), baseline.read_bytes())
 
     def test_version_must_match_selected_commit(self):
         with self.assertRaisesRegex(ValueError, "expected 9.9.9"):

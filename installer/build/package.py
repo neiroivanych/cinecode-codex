@@ -16,6 +16,10 @@ sys.path.insert(0, str(ROOT / "installer"))
 from install import validate_names
 
 
+# Stored members keep release bytes independent of the host compressor.
+ARCHIVE_METHOD = zipfile.ZIP_STORED
+
+
 PLATFORMS = {
     "windows": ("Windows", "INSTALL_CINECODE.cmd", "setup.ps1"),
     "macos": ("macOS", "INSTALL_CINECODE.command", "setup.sh"),
@@ -62,12 +66,12 @@ def build(root, source, system, output, expected_version=None):
     launchers = {name: files[prefix + name] for name in (entry, setup, "README-INSTALL.txt")}
     output.mkdir(parents=True, exist_ok=True)
     destination = output / f"CineCode-Setup-{label}.zip"
-    with zipfile.ZipFile(destination, "x", compression=zipfile.ZIP_DEFLATED, compresslevel=9) as archive:
+    with zipfile.ZipFile(destination, "x", compression=ARCHIVE_METHOD) as archive:
         def write(name, data, mode=0o644):
             info = zipfile.ZipInfo(name, (1980, 1, 1, 0, 0, 0))
             info.create_system = 3
             info.external_attr = (stat.S_IFREG | mode) << 16
-            archive.writestr(info, data, compress_type=zipfile.ZIP_DEFLATED, compresslevel=9)
+            archive.writestr(info, data, compress_type=ARCHIVE_METHOD)
 
         for name, data in launchers.items():
             write(name, data, 0o755 if system == "macos" and name != "README-INSTALL.txt" else 0o644)
