@@ -1,6 +1,29 @@
-# Qualification — 0.1.0-alpha
+# Qualification
 
-## Historical local Windows qualification
+## 0.1.2-alpha candidate — clean local Windows qualification
+
+The implementation at `04712fdc8e4eea432e957ccfc1fec9971227e362` passed in a clean
+local Windows clone. Verification matched all 168 vendored files to the pinned
+snapshot. Doctor and 45 of 45 deterministic tests passed with zero skips.
+
+Native Codex CLI/app-server discovery found the repo-local skill, and an
+ephemeral invocation returned its marker. In a separate session, a Russian
+conversation with an English brief produced a Russian production card and
+approval question without a language instruction. Quick and Film initialization
+propagated the language and motion review guidance.
+
+On a three-second 320×180 H.264/AAC fixture at 24 fps, `score-events` matched
+the MP4 hash and reported one declared score accent. The same command with
+`--check` retained the native `HELD`, `SOUND THIN` and exit code 1. Missing
+evidence returned `UNKNOWN`, and a wrong hash returned `INVALID` before native
+QC. The fixture establishes declaration validation and reporting behavior.
+
+Hosted Windows and macOS qualification for this candidate is pending. These
+local results cover bounded initialization and a fixture. Film production,
+full Quick on macOS, macOS Desktop and model invocation, Intel macOS and Linux
+remain outside the verified scope.
+
+## Historical local Windows qualification — 0.1.0-alpha
 
 **Experimental. Windows native-skill + tiny synthetic smoke PASS.**
 Date: 2026-11-07, Asia/Bangkok. This historical local run used Windows. That historical smoke did not run a full Quick film or Film mode.
@@ -36,9 +59,15 @@ a work tree"; authorized host checks confirmed a normal non-bare repository.
 Its root cause was not established. No browser --no-sandbox, global graphics changes or dependency installs
 were used.
 
-## Hosted Windows and macOS qualification
+## Historical hosted Windows and macOS qualification
 
-Both jobs passed on this published commit
+The published `v0.1.1-alpha` commit
+`470e8c54b6396e950a0ab269601d2cde3aa54838` passed adapter and synthetic media
+qualification on Windows Server 2025 x64 and macOS 15 arm64, with 27 of 27
+tests and zero skips on each runner.
+[GitHub Actions run 42370237580](https://github.com/neiroivanych/cinecode-codex/actions/runs/42370237580)
+
+The earlier hosted results below are from published commit
 `3e151ca82c5c8d4223fa8810c2188965568dc7e1`.
 [GitHub Actions run 42349274464](https://github.com/neiroivanych/cinecode-codex/actions/runs/42349274464)
 

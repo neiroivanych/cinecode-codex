@@ -1,7 +1,7 @@
 # cinecode-codex
 
 **Independent community Codex adapter for CineCode.**
-**Experimental public alpha** · Free and open source · `0.1.1-alpha`.
+**Experimental alpha** · Free and open source · `0.1.2-alpha`.
 
 Codex adapter created and maintained by [@neiroivanych](https://github.com/neiroivanych).
 
@@ -25,11 +25,11 @@ This experimental adapter provides a Codex workflow for CineCode. See [actual qu
 
 | Environment | Qualification |
 | --- | --- |
-| Windows x64 | Hosted adapter and synthetic media PASS. A bounded local Quick film completed through two owner revision rounds and final decode. Automatic CineCode delivery remained HELD. |
-| macOS 15 arm64 | Hosted adapter and synthetic media PASS. Full Quick, Codex Desktop on a user Mac and `$cinecode` model invocation are NOT VERIFIED. |
-| Intel macOS, Linux and Film mode | NOT VERIFIED. |
+| Windows x64 | Clean local qualification PASS for the implementation. Earlier hosted adapter and synthetic media qualification PASS. |
+| macOS 15 arm64 | Earlier hosted adapter and synthetic media qualification PASS. Full Quick, Codex Desktop and model invocation remain unverified. |
+| Intel macOS, Linux and Film production | NOT VERIFIED. |
 
-Both hosted jobs verified credential-free Codex `skills/list` metadata. See the
+Hosted Windows and macOS qualification for this candidate is pending. See the
 [qualification report](docs/QUALIFICATION.md) for test scope and evidence.
 
 ## Prerequisites
@@ -46,13 +46,13 @@ approval and a reviewed invocation. No API key is required by the adapter.
 
 ## Open and check
 
-Run these commands one at a time, in order. The clone selects the
-`v0.1.1-alpha` release tag before either check. Continue only after each
-command succeeds.
+Once the `v0.1.2-alpha` tag is published, run these commands one at a time, in
+order. The clone selects the release tag before either check. Continue after
+each command succeeds.
 Use `python3` in both lines if that is your Python command.
 
 ~~~sh
-git clone --branch v0.1.1-alpha --single-branch https://github.com/neiroivanych/cinecode-codex.git
+git clone --branch v0.1.2-alpha --single-branch https://github.com/neiroivanych/cinecode-codex.git
 cd cinecode-codex
 python -B scripts/cc.py verify
 python -B scripts/cc.py doctor

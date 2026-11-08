@@ -92,7 +92,7 @@ class Onboarding(unittest.TestCase):
 
     def test_readme_selects_release_before_checks(self):
         version = (ROOT / "VERSION").read_text().strip()
-        self.assertEqual(version, "0.1.1-alpha")
+        self.assertEqual(version, "0.1.2-alpha")
         readme = (ROOT / "README.md").read_text(encoding="utf-8")
         onboarding = readme.split("## Open and check", 1)[1].split("\n## ", 1)[0]
         command_block = re.search(r"(?m)^[ \t]*~~~sh[ \t]*\n([\s\S]*?)^[ \t]*~~~[ \t]*$", onboarding)

@@ -1,5 +1,18 @@
 # Changelog
 
+## 0.1.2-alpha — 2026-11-08
+
+- Follow the owner's current language request within its scope, then the
+  conversation language. Use an established preference when the conversation
+  language is unclear. Technical briefs leave the conversation language intact.
+- Review fast continuous motion in MP4 at normal playback speed. Record the
+  exact reviewed artifact and carry its approved temporal treatment into final.
+- Record optional score events against an exact MP4 SHA-256 with
+  `cc.py score-events`. Keep declaration counts separate from upstream QC and
+  retain upstream `SOUND THIN` and its result.
+- Qualified the implementation in a clean Windows checkout with 45 passing
+  tests, native skill discovery and a real MP4 fixture.
+
 ## 0.1.1-alpha — 2026-11-07
 
 - Select the release tag before running onboarding checks.
