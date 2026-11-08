@@ -22,6 +22,8 @@ retain their technical format.
 Read REPO/docs/HOST_ADAPTATION.md, then KIT/SKILL.md. Treat this wrapper and the
 host adaptation as the translation of upstream host-specific instructions. Load only
 the upstream reference sections needed for the current step.
+For a bootstrap installation with REPO/.cinecode-runtime, also use the runtime
+launch instructions in REPO/installer/README.md for each adapter command.
 
 For compatibility-inspection requests, do only the requested checks, never start
 a film. Native invocation probe marker: CINECODE_CODEX_SKILL_LOADED.
