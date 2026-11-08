@@ -35,7 +35,7 @@ class Packaging(unittest.TestCase):
         self.git("init", "-q")
         for name in ("VERSION", "adapter.json", "scripts/cc.py", ".agents/skills/cinecode/SKILL.md",
                      "upstream.lock.json", "cinecode.sha256.json", "cinecode/SKILL.md"):
-            self.write(name, b"0.1.2-alpha\n" if name == "VERSION" else b"fixture\n")
+            self.write(name, b"0.1.3-alpha\n" if name == "VERSION" else b"fixture\n")
         for name in ("manifest.json", "install.py", "windows/INSTALL_CINECODE.cmd", "windows/setup.ps1",
                      "windows/README-INSTALL.txt", "macos/INSTALL_CINECODE.command", "macos/setup.sh",
                      "macos/README-INSTALL.txt"):
@@ -71,11 +71,12 @@ class Packaging(unittest.TestCase):
         for system, os_name in (("windows", "Windows"), ("macos", "Darwin")):
             with self.subTest(system=system):
                 artifact, bundle = self.extract(system, system)
-                repeated = build(self.repo, self.head, system, self.root / (system + "-second"), "0.1.2-alpha")
+                repeated = build(self.repo, self.head, system, self.root / (system + "-second"), "0.1.3-alpha")
                 self.assertEqual(artifact.read_bytes(), repeated.read_bytes())
                 manifest, payload = install.verify_payload(bundle, os_name)
                 self.assertEqual(manifest["source_commit"], self.head)
-                self.assertEqual(manifest["adapter_version"], "0.1.2-alpha")
+                self.assertEqual(manifest["adapter_version"], "0.1.3-alpha")
+                self.assertEqual(manifest["installer_version"], "0.1.0-alpha")
                 self.assertEqual(set(manifest["files"]), set(self.git("ls-files").decode().splitlines()))
                 for name, info in manifest["files"].items():
                     data = self.git("show", f"{self.head}:{name}")
@@ -128,6 +129,23 @@ class Packaging(unittest.TestCase):
             with self.assertRaisesRegex(ValueError, "outside system directories"):
                 install.destination_path(self.root / "Temp" / "CineCode")
 
+    def test_destination_accepts_alias_for_allowed_temp_path(self):
+        temp_root = self.root / "Long temp directory"
+        temp_root.mkdir()
+        destination = temp_root / "CineCode"
+        alias = self.root / "LONGTE~1" / "CineCode"
+        resolve = type(alias).resolve
+
+        def resolve_alias(path, *args, **kwargs):
+            if path == alias:
+                return destination
+            return resolve(path, *args, **kwargs)
+
+        with patch.object(type(alias), "resolve", resolve_alias), \
+                patch.object(install.platform, "system", return_value="Windows"), \
+                patch.object(install.tempfile, "gettempdir", return_value=str(temp_root)):
+            self.assertEqual(install.destination_path(alias), destination)
+
     def test_same_version_repair_and_unrelated_files_survive(self):
         _, bundle = self.extract("windows", "repair")
         destination = self.root / "CineCode with spaces" / "Тест"
@@ -163,7 +181,7 @@ class Packaging(unittest.TestCase):
         version.write_text("0.1.1-alpha", encoding="utf-8")
         with self.assertRaisesRegex(ValueError, "different CineCode version"):
             install.install_plan(destination, manifest)
-        version.write_text("0.1.2-alpha\n", encoding="utf-8")
+        version.write_text("0.1.3-alpha\n", encoding="utf-8")
         (destination / "adapter.json").write_text("user content", encoding="utf-8")
         with self.assertRaisesRegex(ValueError, "does not belong"):
             install.install_plan(destination, manifest)

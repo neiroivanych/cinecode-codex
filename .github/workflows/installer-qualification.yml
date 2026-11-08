@@ -2,7 +2,7 @@ name: Hosted bootstrap qualification
 
 on:
   push:
-    branches: [qualification/bootstrap-v013]
+    branches: ['qualification/**']
   workflow_dispatch:
 
 permissions:

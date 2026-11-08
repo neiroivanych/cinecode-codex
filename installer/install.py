@@ -114,6 +114,8 @@ def destination_path(value):
     home = Path.home()
     path = Path(os.path.abspath(value if value else home / "CineCode/cinecode-codex"))
     guarded(path)
+    # Compare canonical spellings while still rejecting links on the supplied path.
+    path = guarded(path.resolve())
     allowed = (home.resolve(), Path(tempfile.gettempdir()).resolve())
     if not any(path != parent and path.is_relative_to(parent) for parent in allowed):
         raise ValueError("Choose a CineCode folder inside your home or temporary directory")
@@ -378,7 +380,8 @@ def setup(bundle, destination, log, *, allow_install=True):
     free = shutil.disk_usage(parent).free
     if free < required:
         raise ValueError("Free up disk space for the CineCode payload and run setup again")
-    print(f"{system} {machine} · setup {manifest['installer_version']} · CineCode {manifest['adapter_version']} · {'Repair' if repair else 'Install'}")
+    print(f"{system} {machine} · setup {manifest['installer_version']}", file=log, flush=True)
+    print(f"CineCode v{manifest['adapter_version']} · {'Repair' if repair else 'Install'}")
     print(f"Payload verified. Available disk: {free // (1024 * 1024)} MiB.")
     print("[2/5] Preparing required components...", flush=True)
     env = dict(os.environ, PYTHONUTF8="1", PYTHONDONTWRITEBYTECODE="1")

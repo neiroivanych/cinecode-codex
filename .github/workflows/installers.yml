@@ -24,11 +24,18 @@ jobs:
           set -euo pipefail
           commit=$(git rev-parse "${GITHUB_REF}^{commit}")
           test "$commit" = "$(git rev-parse HEAD)"
+          test "$commit" = "$(git rev-parse "${GITHUB_SHA}^{commit}")"
           python -B scripts/cc.py verify
           python -B installer/build/package.py --platform windows --ref "$commit" --version "${GITHUB_REF_NAME#v}" --out "$RUNNER_TEMP/cinecode-installers"
           python -B installer/build/package.py --platform macos --ref "$commit" --version "${GITHUB_REF_NAME#v}" --out "$RUNNER_TEMP/cinecode-installers"
+          cd "$RUNNER_TEMP/cinecode-installers"
+          sha256sum CineCode-Setup-Windows.zip CineCode-Setup-macOS.zip > SHA256SUMS.txt
+          sha256sum --check SHA256SUMS.txt
       - uses: actions/upload-artifact@cf430e030ddbb5b0abf93d22962f4752f3646cd9 # v7
         with:
           name: cinecode-bootstrap-zips
-          path: ${{ runner.temp }}/cinecode-installers/*.zip
+          path: |
+            ${{ runner.temp }}/cinecode-installers/CineCode-Setup-Windows.zip
+            ${{ runner.temp }}/cinecode-installers/CineCode-Setup-macOS.zip
+            ${{ runner.temp }}/cinecode-installers/SHA256SUMS.txt
           if-no-files-found: error

@@ -29,9 +29,9 @@ macOS uses the Homebrew `python`, `node` and `ffmpeg` formulae and the
 is reused. Setup checks both `ffmpeg` and `ffprobe`. Codex uses its normal
 installation and sign-in separately.
 
-On macOS the ZIP sets the executable mode on the entry point. The unsigned
-bootstrap uses the normal system prompt and the file-specific Open Anyway
-fallback described in `README-INSTALL.txt`. On Windows the CMD launcher applies
+On macOS the ZIP sets the executable mode on the entry point. The unsigned and unnotarized
+bootstrap uses the file-specific Open Anyway fallback described in
+`README-INSTALL.txt` for a trusted ZIP from the official GitHub Release. On Windows the CMD launcher applies
 its PowerShell execution policy in the setup process only.
 
 ## Runtime launch from Codex
@@ -69,9 +69,11 @@ existing CLI instructions.
 
 ## Build and qualify
 
+Set `output_dir` to a new directory outside the repository.
+
 ```sh
-python -B installer/build/package.py --platform windows --ref HEAD --out evidence/local/installers
-python -B installer/build/package.py --platform macos --ref HEAD --out evidence/local/installers
+python -B installer/build/package.py --platform windows --ref HEAD --out "$output_dir"
+python -B installer/build/package.py --platform macos --ref HEAD --out "$output_dir"
 ```
 
 `--version` can assert the exact version in the chosen commit. Use a new output
@@ -79,5 +81,5 @@ directory for repeated builds. The builder prints each ZIP's SHA-256. Existing
 files are reused during the Windows qualification by running the extracted
 launcher with `-Destination` and `-ExistingOnly`. The macOS equivalents are
 `--destination` and `--existing-only`. Use a disposable folder under your home
-or temp directory. Missing-component paths are covered by deterministic tests.
-Actual macOS installation is a separate qualification step.
+or temp directory. See [qualification scope](../docs/QUALIFICATION.md) for the real hosted
+package-manager runs and the remaining deterministic-only routes.

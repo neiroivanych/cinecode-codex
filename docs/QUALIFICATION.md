@@ -1,5 +1,42 @@
 # Qualification
 
+## Hosted bootstrap implementation qualification
+
+[GitHub Actions run 42468253745](https://github.com/neiroivanych/cinecode-codex/actions/runs/42468253745)
+qualified commit `93f20a74afec07feb61d97fd89000332af9de983`. The two ZIPs were
+built from that commit and tested through their packaged launchers. This run
+predates the release version bump. The final `v0.1.3-alpha` packages require
+their own hosted run at the exact release commit before publication.
+
+| Check | Windows | macOS |
+| --- | --- | --- |
+| Runner | `windows-2025`, Windows Server 2025 x64 | `macos-15`, macOS 15.8.2 arm64 |
+| Launcher | `INSTALL_CINECODE.cmd` | `INSTALL_CINECODE.command` |
+| Regressions | 66/66, zero skips | 66/66, zero skips |
+| Pinned vendor | 168/168 | 168/168 |
+| Install and Repair | PASS | PASS |
+| Installed `verify` and `doctor` | PASS | PASS |
+| Workspace, state and unrelated files | Preserved | Preserved |
+| Missing FFmpeg and ffprobe | PASS through WinGet | PASS through existing Homebrew |
+| Runtime from an independent shell | PASS | PASS |
+| Credential-free repo-local `skills/list` | PASS | PASS |
+
+Both ZIPs contained the same 209-file payload with matching file hashes. Repair
+restored a corrupted file and a missing file owned by setup. Runtime checks used
+the documented settings from `.cinecode-runtime` in a fresh shell. Both paths
+used a destination with spaces and non-ASCII characters.
+
+- Missing Python, Node and supported browser routes have deterministic planning
+  or install tests. Hosted native missing-component qualification exercised
+  only FFmpeg and ffprobe.
+- Homebrew-absent native installation is **NOT QUALIFIED**. The deterministic
+  tests cover the consent path. Setup asks before running the official installer.
+- The unsigned, unnotarized macOS ZIP is **NOT FULLY QUALIFIED** for browser
+  download and Finder under Gatekeeper. The hosted jobs verified script execution
+  and setup logic. Consumer SmartScreen prompts on Windows were outside scope.
+- Codex Desktop UI and Intel macOS are **NOT QUALIFIED**. A Linux installer is
+  **NOT PROVIDED / NOT QUALIFIED**.
+
 ## v0.1.2-alpha release qualification
 
 The implementation at `04712fdc8e4eea432e957ccfc1fec9971227e362` passed in a clean
@@ -122,8 +159,8 @@ defines the metadata call; hosted discovery is measured independently.
 
 [Sanitized public summary](../evidence/qualification/windows-2026-11-07.json)
 contains versions, exact assertions and output hashes. Raw commands/logs, native
-events/answer, probe outputs, ffprobe JSON, PNG frames and MP4 are retained locally
-under the ignored `evidence/local/` directory. The public summary omits personal
+events/answer, probe outputs, ffprobe JSON, PNG frames and MP4 are retained in
+ignored local evidence. The public summary omits personal
 paths and account/session data.
 
 Vendor verification checks exact upstream Git blob bytes.

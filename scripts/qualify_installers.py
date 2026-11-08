@@ -21,7 +21,9 @@ import native_discovery
 
 
 PIN = "67f9807112b97ae253d4a5f0eccaccc46c3b2633"
-EXPECTED_VERSION = "0.1.2-alpha"
+EXPECTED_VERSION = "0.1.3-alpha"
+EXPECTED_INSTALLER_VERSION = "0.1.0-alpha"
+EXPECTED_TESTS = 67
 WINDOWS = "Windows"
 MAC = "Darwin"
 BASE_ENV = {"PATH", "SYSTEMROOT", "WINDIR", "COMSPEC", "PATHEXT", "LANG", "LC_ALL",
@@ -96,7 +98,7 @@ class Qualification:
             assert all(os.access(self.bundle / name, os.X_OK) for name in (entry, script))
         metadata, _ = install.verify_payload(self.bundle, self.system)
         assert metadata["source_commit"] == sha and metadata["adapter_version"] == EXPECTED_VERSION
-        assert metadata["schema_version"] == 1 and metadata["installer_version"] == "0.1.0-dev"
+        assert metadata["schema_version"] == 1 and metadata["installer_version"] == EXPECTED_INSTALLER_VERSION
         assert metadata["file_count"] == len(tracked)
         (self.out / "manifest.json").write_text(json.dumps(metadata, indent=2), encoding="utf-8")
         self.summary["archive"] = {"name": archive.name, "sha256": install.digest(archive),
@@ -111,9 +113,10 @@ class Qualification:
         assert vendor == {"ok": True, "commit": PIN, "files": 168, "errors": []}
         result = self.run("regressions", [sys.executable, "-B", "-m", "unittest", "discover", "-s", "tests", "-v"])
         counts = re.search(r"Ran (\d+) tests", result.stderr)
-        assert counts and int(counts[1]) == 66 and result.stderr.rstrip().endswith("OK")
-        assert len(re.findall(r" \.\.\. ok$", result.stderr, re.M)) == 66
-        self.summary.update(vendor=vendor, regressions={"run": 66, "pass": 66, "fail": 0, "skip": 0})
+        assert counts and int(counts[1]) == EXPECTED_TESTS and result.stderr.rstrip().endswith("OK")
+        assert len(re.findall(r" \.\.\. ok$", result.stderr, re.M)) == EXPECTED_TESTS
+        self.summary.update(vendor=vendor, regressions={"run": EXPECTED_TESTS, "pass": EXPECTED_TESTS,
+                                                       "fail": 0, "skip": 0})
 
     def launcher(self, name, destination, env=None, *, check=True):
         if self.system == WINDOWS:

@@ -1,5 +1,18 @@
 # Changelog
 
+## 0.1.3-alpha — 2026-11-08
+
+- Added guided setup ZIPs for Windows and macOS. Extract the ZIP and launch the
+  included installer. Git is only needed for the manual or developer route.
+- Setup detects and reuses compatible components, and prepares supported
+  components that are missing.
+- Run setup again to repair a same-version installation while preserving
+  projects, state and unrelated files.
+- Setup checks payload integrity and runs CineCode verification and diagnostics
+  before reporting success. It records the runtime for later Codex commands.
+- Qualified the bootstrap implementation on hosted Windows x64 and macOS arm64,
+  including native Install, Repair and preparation of missing media tools.
+
 ## 0.1.2-alpha — 2026-11-08
 
 - Follow the owner's current language request within its scope, then the
